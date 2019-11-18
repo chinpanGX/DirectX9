@@ -36,6 +36,9 @@
     <ClInclude Include="debugproc.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="box.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Field.cpp">
@@ -57,6 +60,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="debugproc.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="box.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>

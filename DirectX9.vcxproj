@@ -138,6 +138,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="box.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="Field.h" />
@@ -147,6 +148,7 @@
     <ClInclude Include="texture.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="box.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="Field.cpp" />

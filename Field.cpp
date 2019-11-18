@@ -15,6 +15,7 @@
 
 //	グローバル変数
 LPDIRECT3DVERTEXBUFFER9 Field::g_pVtxBuffField = NULL;	//	頂点バッファへのポインタ
+LPDIRECT3DINDEXBUFFER9	Field::g_pIdxBuffField = NULL;			//	インデックスバッファ
 D3DXMATRIX				Field::g_mtxWorldField;			//	ワールドマトリックス
 D3DXVECTOR3				Field::g_posField;				//	地面の位置
 D3DXVECTOR3				Field::g_rotField;				//	地面の向き(回転)
@@ -39,8 +40,8 @@ HRESULT Field::Init()
 //	フィールドの終了処理
 void Field::Uninit()
 {
-	DEVICE_RELEASE(pDevice);
 	DEVICE_RELEASE(g_pVtxBuffField);
+	DEVICE_RELEASE(g_pIdxBuffField);
 }
 
 //	フィールドの描画
@@ -93,39 +94,33 @@ HRESULT Field::MakeVertexField(LPDIRECT3DDEVICE9 pDevice)
 		//頂点バッファの範囲のロックし、頂点バッファへのポインタをもらう
 		g_pVtxBuffField->Lock(0, 0, (void**)&pVtx, 0);
 
-	
 		//頂点座標の設定
-		pVtx[0].pos = D3DXVECTOR3(-100, -100, 100);
-		pVtx[1].pos = D3DXVECTOR3(100, -100, 100);
-		pVtx[2].pos = D3DXVECTOR3(-100,-100, -100);
-		pVtx[3].pos = D3DXVECTOR3(100, -100, 100);
-		pVtx[4].pos = D3DXVECTOR3(100, -100, -100);
-		pVtx[5].pos = D3DXVECTOR3(-100, -100, -100);
-		
-		//法線ベクトルの設定
-		pVtx[0].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-		pVtx[1].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-		pVtx[2].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-		pVtx[3].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-		pVtx[4].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-		pVtx[5].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-		
-		//頂点カラーの設定
-		pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[4].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[5].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		for (int z = 0; z < 2; z++)
+		{
+			for (int x = 0; x < 4; x++)
+			{
+				pVtx[z * 4 + x].pos = D3DXVECTOR3(x * 100.0f, 0.0f, z * -100.0f);
+			}
+		}
 
-		//テクスチャ座標の設定
-		pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-		pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-		pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-		pVtx[3].tex = D3DXVECTOR2(1.0f, 0.0f);
-		pVtx[4].tex = D3DXVECTOR2(1.0f, 1.0f);
-		pVtx[5].tex = D3DXVECTOR2(0.0f, 1.0f);
+		for (int i = 0; i < 8; i++)
+		{
+			pVtx[i].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);		//	法線ベクトルの設定
+			pVtx[i].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);	//	頂点カラーの設定
+		}
 
+		//テクスチャ座標
+		{
+			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+			pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
+			pVtx[2].tex = D3DXVECTOR2(2.0f, 0.0f);
+			pVtx[3].tex = D3DXVECTOR2(3.0f, 0.0f);
+			pVtx[4].tex = D3DXVECTOR2(0.0f, 1.0f);
+			pVtx[5].tex = D3DXVECTOR2(1.0f, 1.0f);
+			pVtx[6].tex = D3DXVECTOR2(2.0f, 1.0f);
+			pVtx[7].tex = D3DXVECTOR2(3.0f, 1.0f);
+
+		}
 		//頂点バッファをアンロック
 		g_pVtxBuffField->Unlock();
 	}

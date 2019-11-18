@@ -368,18 +368,12 @@ bool Init(HINSTANCE hInst)
 		return false;
 	}
 
-	//	シーンマネージャーの初期化処理
-	Camera::Init();
-
 	return true;
 }
 
 //#　終了処理関数
 void Uninit()
 {
-	//	シーンマネージャーの終了処理
-	SceneManager::Uninit();
-
 	// DirectInputの終了処理
 	Input::Uninit();
 
@@ -395,10 +389,6 @@ void Update()
 
 	//ゲームパッドの状態を更新する
 	Input::GP_Update();
-	
-	//	シーンマネージャーの更新
-	SceneManager::Update();
-
 }
 
 //# 描画処理関数
@@ -411,9 +401,6 @@ void Draw()
 
 	// 描画バッチ命令の開始
 	pD3DDevice->BeginScene();
-
-	//	シーンマネージャーの描画処理
-	SceneManager::Draw();
 
 	// 描画バッチ命令の終了
 	pD3DDevice->EndScene();
