@@ -11,7 +11,7 @@
 //　マクロ定義
 #define	CAM_POS_V_X		(0.0f)											// カメラの視点初期位置(X座標)
 #define	CAM_POS_V_Y		(100.0f)										// カメラの視点初期位置(Y座標)
-#define	CAM_POS_V_Z		(-200.0f)										// カメラの視点初期位置(Z座標)
+#define	CAM_POS_V_Z		(200.0f)										// カメラの視点初期位置(Z座標)
 #define	CAM_POS_R_X		(0.0f)											// カメラの注視点初期位置(X座標)
 #define	CAM_POS_R_Y		(0.0f)											// カメラの注視点初期位置(Y座標)
 #define	CAM_POS_R_Z		(0.0f)											// カメラの注視点初期位置(Z座標)
@@ -31,7 +31,8 @@ private:
 	//メンバ変数
 	static D3DXVECTOR3			posV;			//	視点（カメラの位置）
 	static D3DXVECTOR3			posR;			//	注視点（カメラはどこを見ているのか）
-	static D3DXVECTOR3			vecU;			//	上方向ベクトル（カメラの上方向はｙがプラス）座標は（０，１，０）
+	static D3DXVECTOR3			vecU;			//	上方向ベクトル（カメラの上方向はｙがプラス）座標は（０，１，０
+	static D3DXVECTOR3			move;
 	static D3DXVECTOR3			rot;
 	static float				fDistance;
 	static D3DXMATRIX			mtxProjection;	//	プロジェクションマトリックス

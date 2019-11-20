@@ -21,9 +21,9 @@ private:
 	static D3DXVECTOR3				g_rotField;			//	地面の向き(回転)
 	static D3DXVECTOR3				g_sclField;			//	地面の大きさ(スケール)
 public:
-	HRESULT Init();										//	初期化処理
-	void Uninit();										//	終了処理
-	void Draw();										//	描画
-	HRESULT MakeVertexField(LPDIRECT3DDEVICE9 pDevice);	//	頂点作成
+	static HRESULT Init();										//	初期化処理
+	static void Uninit();										//	終了処理
+	static void Draw();											//	描画
+	static HRESULT MakeVertexField(LPDIRECT3DDEVICE9 pDevice);	//	頂点作成
 };
 

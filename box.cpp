@@ -32,10 +32,10 @@ LPDIRECT3DINDEXBUFFER9	g_pIdxBuffBox = NULL;
 struct CUBE_T
 {
 	D3DXMATRIX				g_mtxWorldBox;		// ワールドマトリックス
-	D3DXVECTOR3				g_posBox;				// 地面の位置
+	D3DXVECTOR3				g_posBox;			// 地面の位置
 	D3DXVECTOR3				g_rot1Box;			// 地面の向き(回転)
 	D3DXVECTOR3				g_rot2Box;			// 地面の向き(回転)
-	D3DXVECTOR3				g_sclBox;				// 地面の大きさ(スケール)
+	D3DXVECTOR3				g_sclBox;			// 地面の大きさ(スケール)
 };
 
 static CUBE_T g_cube[NUM_CUBE];
@@ -442,7 +442,7 @@ HRESULT MakeVertexBox(LPDIRECT3DDEVICE9 pDevice)
 			//pVtx[18].pos = D3DXVECTOR3(-BOX_WIDTH,-BOX_HEIGHT, BOX_DEPTH);
 			//pVtx[19].pos = D3DXVECTOR3( BOX_WIDTH,-BOX_HEIGHT, BOX_DEPTH);
 			//pVtx[20].pos = D3DXVECTOR3(-BOX_WIDTH, BOX_HEIGHT, BOX_DEPTH);
-
+ 
 			//pVtx[21].pos = D3DXVECTOR3( BOX_WIDTH,-BOX_HEIGHT, BOX_DEPTH);
 			//pVtx[22].pos = D3DXVECTOR3( BOX_WIDTH, BOX_HEIGHT, BOX_DEPTH);
 			//pVtx[23].pos = D3DXVECTOR3(-BOX_WIDTH, BOX_HEIGHT, BOX_DEPTH);
