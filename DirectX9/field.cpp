@@ -1,5 +1,5 @@
 #include "field.h"
-#include "myDirect3D.h"
+
 #include "input.h"
 #include "texture.h"
 #include "debugproc.h"
@@ -126,7 +126,7 @@ void Field_Draw(void)
 
 	pDevice->SetIndices(g_pIdxBuffField);
 	//インデックスバッファのセット
-	pDevice->SetFVF(FVF_VERTEX_3D);
+	pDevice->SetFVF(FVF_VERTEX3D);
 
 	//テクスチャの設定
 	pDevice->SetTexture(0, Texture_GetTexture(TEXTURE_INDEX_FIELD01));
@@ -159,7 +159,7 @@ HRESULT MakeVertexField(LPDIRECT3DDEVICE9 pDevice)
 {
 	if (FAILED(pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * TYOTEN / 2,
 		D3DUSAGE_WRITEONLY,
-		FVF_VERTEX_3D,
+		FVF_VERTEX3D,
 		D3DPOOL_MANAGED,
 		&g_pVtxBuffField,
 		NULL)))

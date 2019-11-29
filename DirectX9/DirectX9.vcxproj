@@ -140,24 +140,24 @@
   <ItemGroup>
     <ClInclude Include="box.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="Controller.h" />
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="field.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="main.h" />
-    <ClInclude Include="myDirect3D.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="texture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="box.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="Controller.cpp" />
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="field.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="myDirect3D.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="texture.cpp" />
   </ItemGroup>

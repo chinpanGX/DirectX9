@@ -1,7 +1,7 @@
 #include <d3dx9.h>
 //#include "debugPrintf.h"
-#include "mydirect3d.h"
 #include "texture.h"
+#include "main.h"
 
 #define TEXTURE_FILENAME_MAX (64)
 

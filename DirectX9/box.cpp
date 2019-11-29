@@ -1,6 +1,6 @@
 
 #include "Box.h"
-#include "myDirect3D.h"
+
 #include "input.h"
 #include "texture.h"
 #include "debugproc.h"
@@ -133,260 +133,255 @@ void Box_Update(void)
 
 	D3DXMatrixTranslation(&mtxTranslate, g_Box[1].g_posBox.x, g_Box[1].g_posBox.y, g_Box[1].g_posBox.z);
 	D3DXMatrixMultiply(&g_Box[1].g_mtxWorldBox, &g_Box[1].g_mtxWorldBox, &mtxTranslate);
+#if 0
+	//ŽlŠp‚ÌŠg‘åk¬‚¢‚¶‚è
+	{
+		g_sclBox.x += g_scl_x;
+		if (g_sclBox.x > 3.0f || g_sclBox.x < 1.0f)
+		{
+		g_scl_x *= -1;
+		}
 
-	////ŽlŠp‚ÌŠg‘åk¬‚¢‚¶‚è
-	//{
-	//	/*g_sclBox.x += g_scl_x;
-	//	if (g_sclBox.x > 3.0f || g_sclBox.x < 1.0f)
-	//	{
-	//	g_scl_x *= -1;
-	//	}
+		g_sclBox.z += g_scl_x;
+		if (g_sclBox.z > 3.0f || g_sclBox.z < 1.0f)
+		{
+		g_scl_x *= -1;
+		}
 
-	//	g_sclBox.z += g_scl_x;
-	//	if (g_sclBox.z > 3.0f || g_sclBox.z < 1.0f)
-	//	{
-	//	g_scl_x *= -1;
-	//	}
+		g_sclBox.y += g_scl_x;
+		if (g_sclBox.y > 3.0f || g_sclBox.y < 1.0f)
+		{
+		g_scl_x *= -1;
+		}
+	
+	}
+	//ƒXƒP[ƒ‹‚ð”½‰f
+	{
+		D3DXMatrixScaling(&mtxScl, g_sclBox.x, g_sclBox.y, g_sclBox.z);
+		D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxScl);
+	}	
+	ŽlŠp‚ÌŠp“x‚¢‚¶‚è
+	{
+		g_rotBox.z = D3DXToRadian(45);
+	}
+	ŽlŠp‚Ì‰ñ“]
+	{
+		g_rot1Box.y -= 0.03f;
+		g_rot2Box.y += 0.03f;
+	}
+	’†S‚ð•ÏX‚µ‚Ä‰ñ“]
+	{
+		
+		‰ñ“]”½‰f¨ˆÚ“®”»’è‚ðˆÚ“®”»’è¨‰ñ“]”»’è‚É•Ï‚¦‚é
+		
+	}
+	ŽlŠp‚ÌˆÚ“®
+	{
+		g_posBox.x += g_move_x;
+		if (g_posBox.x >220.0f|| g_posBox.x < -220.0f)
+		{
+		g_move_x*=-1 ;
+		}
 
-	//	g_sclBox.y += g_scl_x;
-	//	if (g_sclBox.y > 3.0f || g_sclBox.y < 1.0f)
-	//	{
-	//	g_scl_x *= -1;
-	//	}
-	//	*/
-	//}
-	////ƒXƒP[ƒ‹‚ð”½‰f
-	//{
-	//	D3DXMatrixScaling(&mtxScl, g_sclBox.x, g_sclBox.y, g_sclBox.z);
-	//	D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxScl);
-	//}	
-	////ŽlŠp‚ÌŠp“x‚¢‚¶‚è
-	//{
-	//	//g_rotBox.z = D3DXToRadian(45);
-	//}
-	////ŽlŠp‚Ì‰ñ“]
-	//{
-	//	g_rot1Box.y -= 0.03f;
-	//	g_rot2Box.y += 0.03f;
-	//}
-	////’†S‚ð•ÏX‚µ‚Ä‰ñ“]
-	//{
-	//	/*
-	//	‰ñ“]”½‰f¨ˆÚ“®”»’è‚ðˆÚ“®”»’è¨‰ñ“]”»’è‚É•Ï‚¦‚é
-	//	*/
-	//}
-	////ŽlŠp‚ÌˆÚ“®
-	///*{
-	//	g_posBox.x += g_move_x;
-	//	if (g_posBox.x >220.0f|| g_posBox.x < -220.0f)
-	//	{
-	//	g_move_x*=-1 ;
-	//	}
+	}
+	
+	ŒÅ’èˆÊ’u
+	{
 
-	//}
-	//*/
-	////ŒÅ’èˆÊ’u
-	//{
+		g_posBox.x = 300;
+		g_posBox.y = 100;
+		g_posBox.z = 300;
 
-	//	g_posBox.x = 300;
-	//	g_posBox.y = 100;
-	//	g_posBox.z = 300;
+	}
+	‰ñ“]‚ð”½‰f
+	
+	{
+		D3DXMatrixRotationYawPitchRoll(&mtxRot, g_blockBox[0].g_rot1Box.y, g_blockBox[0].g_rot1Box.x, g_rot1Box.z);
+		D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxRot);
+	}
+	
+	ˆÚ“®‚ð”½‰f
+	
+	{
+		D3DXMatrixTranslation(&mtxTranslate, g_posBox.x, g_posBox.y, g_posBox.z);
+		D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxTranslate);
+	}
+	
+	‰ñ“]‚ð”½‰f(•’Ê‚Ì‰ñ“])
+	
+	{
+		D3DXMatrixRotationYawPitchRoll(&mtxRot, g_rot2Box.y, g_rot2Box.x, g_rot2Box.z);
+		D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxRot);
+	}
+	
+	‰ñ“]‚ð”½‰f
+	
+	{
+		D3DXMatrixRotationYawPitchRoll(&mtxRot, g_blockBox[0].g_rot1Box.y, g_rot1Box.x, g_rot1Box.z);
+		D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxRot);
+	}
+	
+	ˆÚ“®‚ð”½‰f
+	{
+		D3DXMatrixTranslation(&mtxTranslate, g_posBox.x, g_posBox.y, g_posBox.z);
+		D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxTranslate);
+	}
 
-	//}
-	////‰ñ“]‚ð”½‰f
-	///*
-	//{
-	//	D3DXMatrixRotationYawPitchRoll(&mtxRot, g_blockBox[0].g_rot1Box.y, g_blockBox[0].g_rot1Box.x, g_rot1Box.z);
-	//	D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxRot);
-	//}
-	//
-	////ˆÚ“®‚ð”½‰f
-	//
-	//{
-	//	D3DXMatrixTranslation(&mtxTranslate, g_posBox.x, g_posBox.y, g_posBox.z);
-	//	D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxTranslate);
-	//}
-	//
-	////‰ñ“]‚ð”½‰f(•’Ê‚Ì‰ñ“])
-	//
-	//{
-	//	D3DXMatrixRotationYawPitchRoll(&mtxRot, g_rot2Box.y, g_rot2Box.x, g_rot2Box.z);
-	//	D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxRot);
-	//}
-	//
-	////‰ñ“]‚ð”½‰f
-	//
-	//{
-	//	D3DXMatrixRotationYawPitchRoll(&mtxRot, g_blockBox[0].g_rot1Box.y, g_rot1Box.x, g_rot1Box.z);
-	//	D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxRot);
-	//}*/
-	///*
-	////ˆÚ“®‚ð”½‰f
-	//{
-	//	D3DXMatrixTranslation(&mtxTranslate, g_posBox.x, g_posBox.y, g_posBox.z);
-	//	D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxTranslate);
-	//}
-	//*/
-	///*
-	////‰ñ“]‚ð”½‰f
-	//{
-	//	D3DXMatrixRotationYawPitchRoll(&mtxRot, g_rot2Box.y, g_rot2Box.x, g_rot2Box.z);
-	//	D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxRot);
-	//}
-//	if (Keyboard_IsPress(DIK_A))
-//	{
-//		if (Keyboard_IsPress(DIK_W))
-//		{// ¶‰œˆÚ“®
-//			g_posBox.x += sinf(-D3DX_PI * 0.75f) * VALUE_MOVE;
-//			g_posBox.z -= cosf(-D3DX_PI * 0.75f) * VALUE_MOVE;
-//		}
-//		else if (Keyboard_IsPress(DIK_S))
-//		{// ¶Žè‘OˆÚ“®
-//			g_posBox.x += sinf(-D3DX_PI * 0.25f) * VALUE_MOVE;
-//			g_posBox.z -= cosf(-D3DX_PI * 0.25f) * VALUE_MOVE;
-//		}
-//		else
-//		{// ¶ˆÚ“®
-//			g_posBox.x += sinf(-D3DX_PI * 0.50f) * VALUE_MOVE;
-//			g_posBox.z -= cosf(-D3DX_PI * 0.50f) * VALUE_MOVE;
-//		}
-//	}
-//	else if (Keyboard_IsPress(DIK_D))
-//	{
-//		if (Keyboard_IsPress(DIK_W))
-//		{// ‰E‰œˆÚ“®
-//			g_posBox.x += sinf(D3DX_PI * 0.75f) * VALUE_MOVE;
-//			g_posBox.z -= cosf(D3DX_PI * 0.75f) * VALUE_MOVE;
-//		}
-//		else if (Keyboard_IsPress(DIK_S))
-//		{// ‰EŽè‘OˆÚ“®
-//			g_posBox.x += sinf(D3DX_PI * 0.25f) * VALUE_MOVE;
-//			g_posBox.z -= cosf(D3DX_PI * 0.25f) * VALUE_MOVE;
-//		}
-//		else
-//		{// ‰EˆÚ“®
-//			g_posBox.x += sinf(D3DX_PI * 0.50f) * VALUE_MOVE;
-//			g_posBox.z -= cosf(D3DX_PI * 0.50f) * VALUE_MOVE;
-//		}
-//	}
-//	else if (Keyboard_IsPress(DIK_W))
-//	{// ‰œˆÚ“®
-//		g_posBox.x += sinf(D3DX_PI * 1.0f) * VALUE_MOVE;
-//		g_posBox.z -= cosf(D3DX_PI * 1.0f) * VALUE_MOVE;
-//	}
-//	else if (Keyboard_IsPress(DIK_S))
-//	{// Žè‘OˆÚ“®
-//		g_posBox.x += sinf(D3DX_PI * 0.0f) * VALUE_MOVE;
-//		g_posBox.z -= cosf(D3DX_PI * 0.0f) * VALUE_MOVE;
-//	}
-//
-//#if 1
-//	if (Keyboard_IsPress(DIK_Q))
-//	{// YŽ²¶‰ñ“]
-//		g_rotBox.y -= VALUE_ROTATE;
-//		if(g_rotBox.y > D3DX_PI)
-//		{
-//			g_rotBox.y -= D3DX_PI * 2.0f;
-//		}
-//		if(g_rotBox.y < -D3DX_PI)
-//		{
-//			g_rotBox.y += D3DX_PI * 2.0f;
-//		}
-//	}
-//	if (Keyboard_IsPress(DIK_E))
-//	{// YŽ²‰E‰ñ“]
-//		g_rotBox.y += VALUE_ROTATE;
-//		if(g_rotBox.y > D3DX_PI)
-//		{
-//			g_rotBox.y -= D3DX_PI * 2.0f;
-//		}
-//		if(g_rotBox.y < -D3DX_PI)
-//		{
-//			g_rotBox.y += D3DX_PI * 2.0f;
-//		}
-//	}
-//#endif
-//
-//#if 1
-//	if (Keyboard_IsPress(DIK_UP))
-//	{// XŽ²‰E‰ñ“]
-//		g_rotBox.x += VALUE_ROTATE;
-//		if(g_rotBox.x > D3DX_PI)
-//		{
-//			g_rotBox.x -= D3DX_PI * 2.0f;
-//		}
-//		if(g_rotBox.x < -D3DX_PI)
-//		{
-//			g_rotBox.x += D3DX_PI * 2.0f;
-//		}
-//	}
-//	if (Keyboard_IsPress(DIK_DOWN))
-//	{// XŽ²¶‰ñ“]
-//		g_rotBox.x -= VALUE_ROTATE;
-//		if(g_rotBox.x > D3DX_PI)
-//		{
-//			g_rotBox.x -= D3DX_PI * 2.0f;
-//		}
-//		if(g_rotBox.x < -D3DX_PI)
-//		{
-//			g_rotBox.x += D3DX_PI * 2.0f;
-//		}
-//	}
-//#endif
-//
-//#if 1
-//	if (Keyboard_IsPress(DIK_LEFT))
-//	{// ZŽ²‰E‰ñ“]
-//		g_rotBox.z += VALUE_ROTATE;
-//		if(g_rotBox.z > D3DX_PI)
-//		{
-//			g_rotBox.z -= D3DX_PI * 2.0f;
-//		}
-//		if(g_rotBox.z < -D3DX_PI)
-//		{
-//			g_rotBox.z += D3DX_PI * 2.0f;
-//		}
-//	}
-//	if (Keyboard_IsPress(DIK_RIGHT))
-//	{// ZŽ²¶‰ñ“]
-//		g_rotBox.z -= VALUE_ROTATE;
-//		if(g_rotBox.z > D3DX_PI)
-//		{
-//			g_rotBox.z -= D3DX_PI * 2.0f;
-//		}
-//		if(g_rotBox.z < -D3DX_PI)
-//		{
-//			g_rotBox.z += D3DX_PI * 2.0f;
-//		}
-//	}
-//#endif
-//
-//	if (Keyboard_IsPress(DIK_RETURN))
-//	{// ƒŠƒZƒbƒg
-//		g_posBox.x = 0.0f;
-//		g_posBox.y = 0.0f;
-//		g_posBox.z = 0.0f;
-//
-//		g_rotBox.x = 0.0f;
-//		g_rotBox.y = 0.0f;
-//		g_rotBox.z = 0.0f;
-//	}
+	‰ñ“]‚ð”½‰f
+	{
+		D3DXMatrixRotationYawPitchRoll(&mtxRot, g_rot2Box.y, g_rot2Box.x, g_rot2Box.z);
+		D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxRot);
+	}
+	if (KeyBoard::IsPress(DIK_A))
+	{
+		if (KeyBoard::IsPress(DIK_W))
+		{// ¶‰œˆÚ“®
+			g_posBox.x += sinf(-D3DX_PI * 0.75f) * VALUE_MOVE;
+			g_posBox.z -= cosf(-D3DX_PI * 0.75f) * VALUE_MOVE;
+		}
+		else if (KeyBoard::IsPress(DIK_S))
+		{// ¶Žè‘OˆÚ“®
+			g_posBox.x += sinf(-D3DX_PI * 0.25f) * VALUE_MOVE;
+			g_posBox.z -= cosf(-D3DX_PI * 0.25f) * VALUE_MOVE;
+		}
+		else
+		{// ¶ˆÚ“®
+			g_posBox.x += sinf(-D3DX_PI * 0.50f) * VALUE_MOVE;
+			g_posBox.z -= cosf(-D3DX_PI * 0.50f) * VALUE_MOVE;
+		}
+	}
+	else if (KeyBoard::IsPress(DIK_D))
+	{
+		if (KeyBoard::IsPress(DIK_W))
+		{// ‰E‰œˆÚ“®
+			g_posBox.x += sinf(D3DX_PI * 0.75f) * VALUE_MOVE;
+			g_posBox.z -= cosf(D3DX_PI * 0.75f) * VALUE_MOVE;
+		}
+		else if (KeyBoard::IsPress(DIK_S))
+		{// ‰EŽè‘OˆÚ“®
+			g_posBox.x += sinf(D3DX_PI * 0.25f) * VALUE_MOVE;
+			g_posBox.z -= cosf(D3DX_PI * 0.25f) * VALUE_MOVE;
+		}
+		else
+		{// ‰EˆÚ“®
+			g_posBox.x += sinf(D3DX_PI * 0.50f) * VALUE_MOVE;
+			g_posBox.z -= cosf(D3DX_PI * 0.50f) * VALUE_MOVE;
+		}
+	}
+	else if (KeyBoard::IsPress(DIK_W))
+	{// ‰œˆÚ“®
+		g_posBox.x += sinf(D3DX_PI * 1.0f) * VALUE_MOVE;
+		g_posBox.z -= cosf(D3DX_PI * 1.0f) * VALUE_MOVE;
+	}
+	else if (KeyBoard::IsPress(DIK_S))
+	{// Žè‘OˆÚ“®
+		g_posBox.x += sinf(D3DX_PI * 0.0f) * VALUE_MOVE;
+		g_posBox.z -= cosf(D3DX_PI * 0.0f) * VALUE_MOVE;
+	}
 
-	//DebugProc_Print("*** ‚R‚cƒ|ƒŠƒSƒ“‘€ì ***\n");
-	//DebugProc_Print("ˆÊ’u [%f : %f : %f]\n", g_posBox.x, g_posBox.y, g_posBox.z);
-	//DebugProc_Print("‘OˆÚ“® : ‚v\n");
-	//DebugProc_Print("ŒãˆÚ“® : ‚r\n");
-	//DebugProc_Print("¶ˆÚ“® : ‚`\n");
-	//DebugProc_Print("‰EˆÚ“® : ‚c\n");
-	//DebugProc_Print("\n");
+	if (KeyBoard::IsPress(DIK_Q))
+	{// YŽ²¶‰ñ“]
+		g_rotBox.y -= VALUE_ROTATE;
+		if(g_rotBox.y > D3DX_PI)
+		{
+			g_rotBox.y -= D3DX_PI * 2.0f;
+		}
+		if(g_rotBox.y < -D3DX_PI)
+		{
+			g_rotBox.y += D3DX_PI * 2.0f;
+		}
+	}
+	if (KeyBoard::IsPress(DIK_E))
+	{// YŽ²‰E‰ñ“]
+		g_rotBox.y += VALUE_ROTATE;
+		if(g_rotBox.y > D3DX_PI)
+		{
+			g_rotBox.y -= D3DX_PI * 2.0f;
+		}
+		if(g_rotBox.y < -D3DX_PI)
+		{
+			g_rotBox.y += D3DX_PI * 2.0f;
+		}
+	}
 
-	//DebugProc_Print("Œü‚« [%f : %f : %f]\n", g_rotBox.x, g_rotBox.y, g_rotBox.z);
-	//DebugProc_Print("XŽ²‰ñ“] : ª / «\n");
-	//DebugProc_Print("YŽ²‰ñ“] : ‚p / ‚d\n");
-	//DebugProc_Print("ZŽ²‰ñ“] : © / ¨\n");
-	//DebugProc_Print("\n");
+	if (KeyBoard::IsPress(DIK_UP))
+	{// XŽ²‰E‰ñ“]
+		g_rotBox.x += VALUE_ROTATE;
+		if(g_rotBox.x > D3DX_PI)
+		{
+			g_rotBox.x -= D3DX_PI * 2.0f;
+		}
+		if(g_rotBox.x < -D3DX_PI)
+		{
+			g_rotBox.x += D3DX_PI * 2.0f;
+		}
+	}
+	if (KeyBoard::IsPress(DIK_DOWN))
+	{// XŽ²¶‰ñ“]
+		g_rotBox.x -= VALUE_ROTATE;
+		if(g_rotBox.x > D3DX_PI)
+		{
+			g_rotBox.x -= D3DX_PI * 2.0f;
+		}
+		if(g_rotBox.x < -D3DX_PI)
+		{
+			g_rotBox.x += D3DX_PI * 2.0f;
+		}
+	}
 
-	//DebugProc_Print("ˆÊ’uEŒü‚«ƒŠƒZƒbƒg : ENTER\n");
+
+	if (KeyBoard::IsPress(DIK_LEFT))
+	{// ZŽ²‰E‰ñ“]
+		g_rotBox.z += VALUE_ROTATE;
+		if(g_rotBox.z > D3DX_PI)
+		{
+			g_rotBox.z -= D3DX_PI * 2.0f;
+		}
+		if(g_rotBox.z < -D3DX_PI)
+		{
+			g_rotBox.z += D3DX_PI * 2.0f;
+		}
+	}
+	if (KeyBoard::IsPress(DIK_RIGHT))
+	{// ZŽ²¶‰ñ“]
+		g_rotBox.z -= VALUE_ROTATE;
+		if(g_rotBox.z > D3DX_PI)
+		{
+			g_rotBox.z -= D3DX_PI * 2.0f;
+		}
+		if(g_rotBox.z < -D3DX_PI)
+		{
+			g_rotBox.z += D3DX_PI * 2.0f;
+		}
+	}
+
+	if (KeyBoard::IsPress(DIK_RETURN))
+	{// ƒŠƒZƒbƒg
+		g_posBox.x = 0.0f;
+		g_posBox.y = 0.0f;
+		g_posBox.z = 0.0f;
+
+		g_rotBox.x = 0.0f;
+		g_rotBox.y = 0.0f;
+		g_rotBox.z = 0.0f;
+	}
+
+	DebugProc_Print("*** ‚R‚cƒ|ƒŠƒSƒ“‘€ì ***\n");
+	DebugProc_Print("ˆÊ’u [%f : %f : %f]\n", g_posBox.x, g_posBox.y, g_posBox.z);
+	DebugProc_Print("‘OˆÚ“® : ‚v\n");
+	DebugProc_Print("ŒãˆÚ“® : ‚r\n");
+	DebugProc_Print("¶ˆÚ“® : ‚`\n");
+	DebugProc_Print("‰EˆÚ“® : ‚c\n");
+	DebugProc_Print("\n");
+
+	DebugProc_Print("Œü‚« [%f : %f : %f]\n", g_rotBox.x, g_rotBox.y, g_rotBox.z);
+	DebugProc_Print("XŽ²‰ñ“] : ª / «\n");
+	DebugProc_Print("YŽ²‰ñ“] : ‚p / ‚d\n");
+	DebugProc_Print("ZŽ²‰ñ“] : © / ¨\n");
+	DebugProc_Print("\n");
+
+	DebugProc_Print("ˆÊ’uEŒü‚«ƒŠƒZƒbƒg : ENTER\n");
+#endif
 }
 
 //=============================================================================
@@ -409,7 +404,7 @@ void Box_Draw(void)
 		//ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚ÌƒZƒbƒg
 		pDevice->SetIndices(g_pIdxBuffBox);
 		//’¸“_ƒtƒH[ƒ}ƒbƒg‚ÉÝ’è
-		pDevice->SetFVF(FVF_VERTEX_3D);
+		pDevice->SetFVF(FVF_VERTEX3D);
 		//ƒeƒNƒXƒ`ƒƒ‚ÌÝ’è
 		pDevice->SetTexture(0, Texture_GetTexture(TEXTURE_INDEX_FIELD01));
 		//ƒƒ‚ƒŠ‚©‚çVRAM‚É‚Ô‚¿ž‚ÞA‚·‚®Á‚¦‚È‚¢
@@ -426,9 +421,9 @@ void Box_Draw(void)
 HRESULT MakeVertexBox(LPDIRECT3DDEVICE9 pDevice)
 {
 	//ƒIƒuƒWƒFƒNƒg‚Ì’¸“_ƒoƒbƒtƒ@‚ð¶¬
-	if (FAILED(pDevice->CreateVertexBuffer(sizeof(VERTEX_3D)*NUM_VERTEX,
+	if (FAILED(pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * 36,
 		D3DUSAGE_WRITEONLY,
-		FVF_VERTEX_3D,
+		FVF_VERTEX3D,
 		D3DPOOL_MANAGED,
 		&g_pVtxBuffBox,
 		NULL)))

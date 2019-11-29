@@ -1,11 +1,22 @@
-#pragma once
+/*==================================
 
+	[light.h]
+	Author : 出合翔太
+
+==================================*/
+
+#pragma once
 #include "main.h"
 
-//*****************************************************************************
-// プロトタイプ宣言
-//*****************************************************************************
-void Light_Initialize(void);
-void Light_Finalize(void);
-void Light_Update(void);
+//Lightクラス
+class Light
+{
+private:
+	static LPDIRECT3DDEVICE9 pDevice;
+	static D3DXVECTOR3 vecDir;
+public:
+	static void Init();
+	static void Uninit();
+};
+
 

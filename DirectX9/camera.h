@@ -1,26 +1,34 @@
+/*-------------------------------------------------------
+
+	[camera.h]
+	Author : 出合翔太　
+
+--------------------------------------------------------*/
 #pragma once
 
 #include "main.h"
 
-//*****************************************************************************
-// プロトタイプ宣言
-//*****************************************************************************
-void Camera_Initialize(void);
-void Camera_Finalize(void);
-void Camera_Update(void);
-
-void Camera_SetCamera(void);
-
-typedef struct
+//	Cameraクラス
+class Camera
 {
+private:
 	D3DXVECTOR3 posV;			// 視点
 	D3DXVECTOR3 posR;			// 注視点
 	D3DXVECTOR3 vecU;			// 上方向ベクトル
-	D3DXMATRIX mtxProjection;	// プロジェクションマトリックス
-	D3DXMATRIX mtxView;	// ビューマトリックス
-	D3DXVECTOR3 rot;
 	float fDistance;
+	static D3DXMATRIX mtxProjection;	// プロジェクションマトリックス
+	static D3DXMATRIX mtxView;			// ビューマトリックス
+	static LPDIRECT3DDEVICE9 pDevice;
 
-} CAMERA;
+public:
+	D3DXVECTOR3 rot;
+public:
+	void Init();	//	初期化処理
+	void Uninit();	//	終了処理
+	void Update();	//	更新処理			
+	void Set();		//	描画処理
 
-CAMERA* GetCamera();
+	//Camera* GetCamera();	//ゲッター
+};
+
+Camera* GetCamera();	//ゲッター

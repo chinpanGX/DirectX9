@@ -1,130 +1,64 @@
+/*=======================================
 
+	[main.cpp]
+	Author : 出合翔太
+
+========================================*/
+
+//#	インクルードファイル
 #include "main.h"
-#include "myDirect3D.h"
-#include "input.h"
-#include "texture.h"
+#include "Controller.h"
 #include "camera.h"
 #include "light.h"
-#include "field.h"
-#include "debugproc.h"
-#include "player.h"
 #include <time.h>
-
+#include "texture.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+//#	プラグマコメント：リンカーにライブラリファイルを指定
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "winmm.lib")
 
-
-/*------------------------------------------------------------------------------
-定数定義
-------------------------------------------------------------------------------*/
+//	マクロ定義
 #define CLASS_NAME     "GameWindow"       // ウインドウクラスの名前
 #define WINDOW_CAPTION "ゲームウィンドウ" // ウィンドウの名前
 
+// グローバル変数宣言
+static	HWND g_hWnd;								// ウィンドウハンドル
+bool	g_bDispDebug = true;						// デバッグ表示ON/OFF
+static	LPDIRECT3D9			g_pD3D = NULL;          // Direct3Dインターフェース
+static	LPDIRECT3DDEVICE9	g_pD3DDevice = NULL;	// Direct3Dデバイス
 
-/*------------------------------------------------------------------------------
-   グローバル変数宣言
-------------------------------------------------------------------------------*/
-static HWND g_hWnd;                 // ウィンドウハンドル
-
-#ifdef _DEBUG
-int					g_nCountFPS;			// FPSカウンタ
-#endif
-bool				g_bDispDebug = true;	// デバッグ表示ON/OFF
-
-/*------------------------------------------------------------------------------
-プロトタイプ宣言
-------------------------------------------------------------------------------*/
-// ウィンドウプロシージャ(コールバック関数)
-LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-// ゲームの初期化
-static bool Initialize(HINSTANCE hInst);
-static void Finalize(void);
-
-// ゲームの更新関数
-static void Update(void);
-// ゲームの描画関数
-static void Draw(void);
+//	プロトタイプ宣言
+LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);	// ウィンドウプロシージャ(コールバック関数)
+static bool WindowInit(HINSTANCE hInstance, int nCmdShow);						// ウィンドウ関数
+bool D3D_Init(HWND hWnd);														// デバイスの初期化
+void D3D_Uninit();																// デバイスの終了処理
+static bool Init(HINSTANCE hInst);												// ゲームの初期化
+static void Uninit();															// ゲームの終了処理
+static void Update();															// ゲームの更新処理
+static void Draw();																// ゲームの描画関数
 
 
-/*------------------------------------------------------------------------------
-メイン
-------------------------------------------------------------------------------*/
+//　メイン関数：エントリーポイント
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	// 使用しない一時変数を明示
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	// ウィンドウクラス構造体の設定
-	WNDCLASS wc = {};
-	wc.lpfnWndProc = WndProc;                          // ウィンドウプロシージャの指定
-	wc.lpszClassName = CLASS_NAME;                     // クラス名の設定
-	wc.hInstance = hInstance;                          // インスタンスハンドルの指定
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);          // マウスカーソルを指定
-	wc.hbrBackground = (HBRUSH)(COLOR_BACKGROUND + 1); // ウインドウのクライアント領域の背景色を設定
-
-	// クラス登録
-	RegisterClass(&wc);
-
-
-	// ウィンドウスタイル
-	DWORD window_style = WS_OVERLAPPEDWINDOW & ~(WS_MAXIMIZEBOX | WS_THICKFRAME);
-
-	// 基本矩形座標
-	RECT window_rect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
-
-	// 指定したクライアント領域を確保するために新たな矩形座標を計算
-	AdjustWindowRect(&window_rect, window_style, FALSE);
-
-	// 新たなWindowの矩形座標から幅と高さを算出
-	int window_width = window_rect.right - window_rect.left;
-	int window_height = window_rect.bottom - window_rect.top;
-
-	// プライマリモニターの画面解像度取得
-	int desktop_width = GetSystemMetrics(SM_CXSCREEN);
-	int desktop_height = GetSystemMetrics(SM_CYSCREEN);
-
-	// デスクトップの真ん中にウィンドウが生成されるように座標を計算
-	// ※ただし万が一、デスクトップよりウィンドウが大きい場合は左上に表示
-	int window_x = max((desktop_width - window_width) / 2, 0);
-	int window_y = max((desktop_height - window_height) / 2, 0);
-
-	// ウィンドウの生成
-	g_hWnd = CreateWindow(
-		CLASS_NAME,     // ウィンドウクラス
-		WINDOW_CAPTION, // ウィンドウテキスト
-		window_style,   // ウィンドウスタイル
-		window_x,       // ウィンドウ座標x
-		window_y,       // ウィンドウ座標y
-		window_width,   // ウィンドウの幅
-		window_height,  // ウィンドウの高さ
-		NULL,           // 親ウィンドウハンドル
-		NULL,           // メニューハンドル
-		hInstance,      // インスタンスハンドル
-		NULL            // 追加のアプリケーションデータ
-		);
-
-	if (g_hWnd == NULL) {
-		// ウィンドウハンドルが何らかの理由で生成出来なかった
-		return -1;
-	}
-
-	// 指定のウィンドウハンドルのウィンドウを指定の方法で表示
-	ShowWindow(g_hWnd, nCmdShow);
-	UpdateWindow(g_hWnd);
+	//表示するウィンドウの定義、登録、表示
+	if (!WindowInit(hInstance, nCmdShow))		// InitApp関数を呼び出し、
+	return false;								// 正常に終了すれば次にメッセージループへ
 
 	// ゲームの初期化
-	Initialize(hInstance);
+	Init(hInstance);
 
-
+	//DWORD型…unsigned lond型（符号なし）
 	DWORD dwExecLastTime;
 	DWORD dwFPSLastTime;
 	DWORD dwCurrentTime;
@@ -135,33 +69,33 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	// フレームカウント初期化
 	dwExecLastTime = dwFPSLastTime = timeGetTime();
-	dwCurrentTime = dwFrameCount = 0;
+	dwCurrentTime = dwFrameCount = 0;	//初期値を0にすることを忘れないように（FPSを取得したときゴミが混ざること防ぐため）
 
 	// Windowsゲーム用メインループ
-	MSG msg = {}; // msg.message == WM_NULL
-	while (WM_QUIT != msg.message) {
+	MSG msg = {}; 
+	while (WM_QUIT != msg.message)
+	{
 
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
 			// メッセージがある場合はメッセージ処理を優先
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		else {
+		else 
+		{
 			dwCurrentTime = timeGetTime();
+		
 			if ((dwCurrentTime - dwFPSLastTime) >= 500)	// 0.5秒ごとに実行
 			{
-#ifdef _DEBUG
-				g_nCountFPS = dwFrameCount * 1000 / (dwCurrentTime - dwFPSLastTime);
-#endif
+
 				dwFPSLastTime = dwCurrentTime;
 				dwFrameCount = 0;
 			}
 
+			//!	1フレームごとに実行（垂直同期を待たない）60FPSに固定　-> モニターによって実行速度の変化を防ぐ
 			if ((dwCurrentTime - dwExecLastTime) >= (1000 / 60))
 			{
-#ifdef _DEBUG
-//				PrintDebugProc("FPS:%d\n", g_nCountFPS);
-#endif
 				dwExecLastTime = dwCurrentTime;
 
 				// 更新処理
@@ -176,7 +110,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	}
 
 	// ゲームの終了処理
-	Finalize();
+	Uninit();
 
 	return (int)msg.wParam;
 }
@@ -184,17 +118,23 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 // ウィンドウプロシージャ(コールバック関数)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	switch (uMsg) {
+	switch (uMsg) 
+	{
+	//キーを押したとき
 	case WM_KEYDOWN:
-		if (wParam == VK_ESCAPE) {
+		if (wParam == VK_ESCAPE)//ESCキー 
+		{
 			SendMessage(hWnd, WM_CLOSE, 0, 0); // WM_CLOSEメッセージの送信
 		}
 		break;
 
+	//カーソルの設定
+	case WM_SETCURSOR:
+		SetCursor(NULL);
+		break;
+
 	case WM_CLOSE:
-//		if (MessageBox(hWnd, "本当に終了してよろしいですか？", "確認", MB_OKCANCEL | MB_DEFBUTTON2) == IDOK) {
-			DestroyWindow(hWnd); // 指定のウィンドウにWM_DESTROYメッセージを送る
-//		}
+		DestroyWindow(hWnd); // 指定のウィンドウにWM_DESTROYメッセージを送る
 		return 0; // DefWindowProc関数にメッセージを流さず終了することによって何もなかったことにする
 
 	case WM_DESTROY: // ウィンドウの破棄メッセージ
@@ -205,99 +145,257 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	// 通常メッセージ処理はこの関数に任せる
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
+	
 
-bool Initialize(HINSTANCE hInst)
+//	ウィンドウ関数
+static bool WindowInit(HINSTANCE hInstance, int nCmdShow)
+{
+	// ウィンドウクラス構造体
+	WNDCLASSEX wc;
+
+	// ウィンドウクラスを定義する
+	wc.cbSize = sizeof(WNDCLASSEX);						// WNDCLASSEX構造体のサイズを設定
+	wc.style = NULL;									// ウィンドウスタイル（デフォルト）
+	wc.lpfnWndProc = WndProc;							// ウィンドウプロシージャの指定
+	wc.cbClsExtra = 0;									// 通常は使わない（０にしておく）
+	wc.cbWndExtra = 0;									// 通常は使わない（０にしておく）
+	wc.lpszClassName = CLASS_NAME;						// クラス名の設定
+	wc.hInstance = hInstance;							// インスタンスハンドルの指定
+	wc.hbrBackground = (HBRUSH)(COLOR_BACKGROUND + 1);	// ウインドウのクライアント領域の背景色を設定
+	wc.hIcon = NULL;									// ラージアイコン（なし）
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);			// カーソルスタイル
+	wc.lpszMenuName = NULL;								// メニュー（なし）
+	wc.hIconSm = NULL;									// スモールアイコン（なし）
+
+	// ウィンドウクラスの登録
+	if (!RegisterClassEx(&wc)) return false;
+
+	//ウィンドウを生成する
+	if (WINMODE)//TRUEのとき
+	{
+		//"	ウィンドウモード
+		g_hWnd = CreateWindow
+		(
+			CLASS_NAME,             // ウィンドウクラスの名前
+			WINDOW_CAPTION,         // ウィンドウタイトル
+			WS_OVERLAPPEDWINDOW,    // ウィンドウスタイル
+			0,                      // ウィンドウの左角Ｘ座標
+			0,                      // ウィンドウの左角Ｙ座標
+			SCREEN_WIDTH,			//ウィンドウの幅
+			SCREEN_HEIGHT,			// ウィンドウの高さ
+			NULL,                   // 親ウィンドウ（なし）
+			NULL,                   // メニュー（なし）
+			hInstance,              // このプログラムのインスタンスのハンドル
+			NULL                    // 追加引数（なし）
+		);
+
+		RECT wRect, cRect;  // ウィンドウ全体の矩形、クライアント領域の矩形
+		int ww, wh;         // ウィンドウ全体の幅、高さ
+		int cw, ch;         // クライアント領域の幅、高さ
+
+		// ウィンドウ全体の幅・高さを計算
+		GetWindowRect(g_hWnd, &wRect);
+		ww = wRect.right - wRect.left;
+		wh = wRect.bottom - wRect.top;
+		// クライアント領域の幅・高さを計算
+		GetClientRect(g_hWnd, &cRect);
+		cw = cRect.right - cRect.left;
+		ch = cRect.bottom - cRect.top;
+		// クライアント領域以外に必要なサイズを計算
+		ww = ww - cw;
+		wh = wh - ch;
+		// ウィンドウ全体に必要なサイズを計算
+		ww = SCREEN_WIDTH + ww;
+		wh = SCREEN_HEIGHT + wh;
+
+		// 計算した幅と高さをウィンドウに設定
+		SetWindowPos(g_hWnd, HWND_TOP, 0, 0, ww, wh, SWP_NOMOVE);
+	}
+	else//FALSEのとき
+	{
+		//"	フルスクリーンモード
+		g_hWnd = CreateWindow
+		(
+			CLASS_NAME,             // ウィンドウクラスの名前
+			WINDOW_CAPTION,         // ウィンドウタイトル
+			WS_VISIBLE | WS_POPUP,  // ウィンドウスタイル
+			0,                      // ウィンドウの左角Ｘ座標
+			0,                      // ウィンドウの左角Ｙ座標
+			SCREEN_WIDTH,           // ウィンドウの幅
+			SCREEN_HEIGHT,          // ウィンドウの高さ
+			NULL,                   // 親ウィンドウ（なし）
+			NULL,                   // メニュー（なし）
+			hInstance,              // このプログラムのインスタンスのハンドル
+			NULL                    // 追加引数（なし）
+		);
+	}
+
+	ShowWindow(g_hWnd, nCmdShow); // ウィンドウを表示
+	ValidateRect(g_hWnd, 0);      // WM_PAINTが呼ばれないようにする
+	UpdateWindow(g_hWnd);         // ウィンドウの更新
+
+	return true;              // InitApp関数の正常終了
+}
+
+//	デバイスの初期化関数
+bool D3D_Init(HWND hWnd)
+{
+	// Direct3Dインターフェースの取得
+	g_pD3D = Direct3DCreate9(D3D_SDK_VERSION);
+
+	if (g_pD3D == NULL) {
+		// Direct3Dインターフェースの取得に失敗
+		MessageBox(hWnd, "Direct3Dインターフェースの作成に失敗しました", "エラー", MB_OK);
+		return false;
+	}
+
+	// デバイスの生成に利用する情報構造体の作成
+	D3DPRESENT_PARAMETERS d3dpp = {};
+
+	d3dpp.BackBufferWidth = SCREEN_WIDTH;							// バックバッファの横幅				
+	d3dpp.BackBufferHeight = SCREEN_HEIGHT;							// バックバッファの縦幅
+	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;						// バックバッファのフォーマット指定
+	d3dpp.BackBufferCount = 1;										// バックバッファの数
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;						// スワップエフェクト（スワップ方法）の設定		
+	d3dpp.Windowed = TRUE;											// ウィンドウモード or フルスクリーン
+	d3dpp.EnableAutoDepthStencil = TRUE;							// 深度バッファ・ステンシルバッファの使用				
+	d3dpp.AutoDepthStencilFormat = D3DFMT_D16;						// 深度バッファ・ステンシルバッファのフォーマット指定
+	d3dpp.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;		// フルスクリーン時のリフレッシュレートの指定
+	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;		// リフレッシュレートとPresent処理の関係
+
+	// Direct3Dデバイスの取得
+	if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, GetHWND(), D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &g_pD3DDevice))) {
+		// デバイスの作成に失敗
+		MessageBox(hWnd, "Direct3Dデバイスの作成に失敗しました", "エラー", MB_OK);
+		return false;
+	}
+
+	//ライトをオフにする
+	g_pD3DDevice->SetRenderState(D3DRS_LIGHTING, false);
+	g_pD3DDevice->SetRenderState(D3DRS_ZENABLE, true);
+
+	//g_pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	//g_pD3DDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	//g_pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_DESTALPHA);
+
+	//アドレッシングモード：ラップ（画像を繰り返す）
+	g_pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
+	g_pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
+
+	//アドレッシングモード：ミラー（画像を反転させて繰り返す）
+	//	g_pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_MIRROR);
+	//	g_pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_MIRROR);
+
+	//アドレッシングモード：クランプ（最後のカラーで以降を塗りつぶし）
+	//	g_pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+	//	g_pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+
+	//アドレッシングモード：ボーダー（特定の色で塗りつぶし）
+	//g_pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_BORDER);
+	//g_pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_BORDER);
+	//g_pD3DDevice->SetSamplerState(0, D3DSAMP_BORDERCOLOR, D3DCOLOR_RGBA(255, 0, 0, 255));
+
+	//テクスチャフィルター：ポイント
+	g_pD3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+	g_pD3DDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+
+	//テクスチャフィルター：バイリニアフィルタ
+	//	g_pD3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+	//	g_pD3DDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+
+	//テクスチャフィルター：異方性フィルタ
+	//	g_pD3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_ANISOTROPIC);
+	//	g_pD3DDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_ANISOTROPIC);
+
+	//	g_pD3DDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
+	//	g_pD3DDevice->SetRenderState(D3DRS_ALPHAREF, 0x80);
+	//	g_pD3DDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
+
+
+	// アルファブレンドの設定
+	g_pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	g_pD3DDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	g_pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+	g_pD3DDevice->SetTextureStageState(0, D3DTSS_COLORARG0, D3DTA_DIFFUSE);
+	g_pD3DDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+	g_pD3DDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+	g_pD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG0, D3DTA_DIFFUSE);
+	g_pD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+	g_pD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+
+	g_pD3DDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	g_pD3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+	g_pD3DDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+
+	// 頂点カラーとテクスチャのブレンド設定
+	//	g_pD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+
+	return true;
+}
+
+// デバイスの終了処理
+void D3D_Uninit()
+{
+	SAFE_RELEASE(g_pD3DDevice);	//	Direct3Dデバイスの解放
+	SAFE_RELEASE(g_pD3D);			//	Direct3Dインタフェースの解放
+}
+
+//　初期化処理関数
+bool Init(HINSTANCE hInst)
 {
 	//シードの初期化
 	srand((unsigned int)time(NULL));
 
 	// ゲームの初期化(Direct3Dの初期化)
-	if (!D3D_Initialize(g_hWnd)){
-		// ゲームの初期化に失敗した
+	if (!D3D_Init(g_hWnd))
+	{
+		return false;	// ゲームの初期化に失敗した
+	}
+	
+	//	コントローラの初期化
+	if (!KeyBoard::Init(hInst, g_hWnd))
+	{
 		return false;
 	}
-	// DirectInputの初期化（キーボード）
-	if (!Keyboard_Initialize(hInst, g_hWnd)){
-		return false;
-	}
-	// DirectInputの初期化（ゲームパッド）
-	if (!GamePad_Initialize(hInst, g_hWnd)){
+	if (!GamePad::Init(hInst, g_hWnd))
+	{
 		return false;
 	}
 
-	//全テクスチャファイルのロード
-	Texture_Load();
-
-	// デバッグ表示処理 
-	DebugProc_Initialize();
-
-	// カメラの初期化処理
-	Camera_Initialize();
-
-	// ライトの初期化処理
-	Light_Initialize();
-
-	//プレイヤーの初期化処理
-	Player_Initialize(D3DXVECTOR3 (0.0f,0.0f,0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-
-	// 地面の初期化処理
-	Field_Initialize();
+	//	メインループ初期化処理
+	Texture_Load();	//	テクスチャのロード
 
 	return true;
 }
 
-void Finalize(void)
+//　終了処理関数
+void Uninit()
 {
-	// カメラの終了処理
-	Camera_Finalize();
+	//	メインループ終了処理
+	Texture_Release();	//	テクスチャのリリース
 
-	// ライトの終了処理
-	Light_Finalize();
-
-	//プレイヤーの終了処理
-	Player_Finalize();
-
-	// 地面の終了処理
-	Field_Finalize();
-
-	// テクスチャの解放
-	Texture_Release();
-
-	// DirectInputの終了処理
-	GamePad_Finalize();
-
-	// DirectInputの終了処理
-	Keyboard_Finalize();
+	//	コントローラの終了処理
+	KeyBoard::Uninit();
+	GamePad::Uninit();
 
 	// ゲームの終了処理(Direct3Dの終了処理)
-	D3D_Finalize();
+	D3D_Uninit();
 }
 
-// ゲームの更新関数
-void Update(void)
+// 更新処理関数
+void Update()
 {
-	//キーボードの状態を更新する
-	Keyboard_Update();
+	//コントローラの状態を更新する
+	KeyBoard::Update();
+	GamePad::Update();
 
-	//ゲームパッドの状態を更新する
-	GamePad_Update();
-
-	// カメラの更新処理
-	Camera_Update();
-
-	// ライトの更新処理
-	Light_Update();
-
-	//プレイヤーの更新処理
-	Player_Update();
-
-	// 地面の更新処理
-	Field_Update();
+	//	メインループ更新処理
 
 }
 
-// ゲームの描画関数
-void Draw(void)
+// 描画処理関数
+void Draw()
 {
 	LPDIRECT3DDEVICE9 pD3DDevice = GetD3DDevice();
 
@@ -307,22 +405,7 @@ void Draw(void)
 	// 描画バッチ命令の開始
 	pD3DDevice->BeginScene();
 
-
-	// カメラの設定
-	Camera_SetCamera();
-
-	//プレイヤーの描画
-	Player_Draw();
-
-	// 地面の描画処理
-	Field_Draw();
-
-
-	// デバッグ表示の描画処理
-	if (g_bDispDebug)
-	{
-		DebugProc_Draw();
-	}
+	//	メインループ描画処理
 
 	// 描画バッチ命令の終了
 	pD3DDevice->EndScene();
@@ -331,12 +414,21 @@ void Draw(void)
 	pD3DDevice->Present(NULL, NULL, NULL, NULL);
 }
 
-//ウィンドウハンドルのゲッター
-HWND GetHWND(){
+//	Direct3DDeviceのゲッター
+LPDIRECT3DDEVICE9 GetD3DDevice() 
+{
+	return g_pD3DDevice;
+}
+
+
+//	ウィンドウハンドルのゲッター
+HWND GetHWND()
+{
 	return g_hWnd;
 }
 
 
-double frand() {
+double frand() 
+{
 	return (double)rand() / RAND_MAX;
 }
