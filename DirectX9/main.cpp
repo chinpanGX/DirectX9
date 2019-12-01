@@ -8,10 +8,8 @@
 //#	インクルードファイル
 #include "main.h"
 #include "Controller.h"
-#include "camera.h"
-#include "light.h"
 #include <time.h>
-#include "texture.h"
+#include "SceneManager.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -57,6 +55,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	// ゲームの初期化
 	Init(hInstance);
+	
 
 	//DWORD型…unsigned lond型（符号なし）
 	DWORD dwExecLastTime;
@@ -364,7 +363,7 @@ bool Init(HINSTANCE hInst)
 	}
 
 	//	メインループ初期化処理
-	Texture_Load();	//	テクスチャのロード
+	SceneManager::Init();
 
 	return true;
 }
@@ -373,7 +372,7 @@ bool Init(HINSTANCE hInst)
 void Uninit()
 {
 	//	メインループ終了処理
-	Texture_Release();	//	テクスチャのリリース
+	SceneManager::Uninit();
 
 	//	コントローラの終了処理
 	KeyBoard::Uninit();
@@ -391,7 +390,7 @@ void Update()
 	GamePad::Update();
 
 	//	メインループ更新処理
-
+	SceneManager::Update();
 }
 
 // 描画処理関数
@@ -406,6 +405,7 @@ void Draw()
 	pD3DDevice->BeginScene();
 
 	//	メインループ描画処理
+	SceneManager::Draw();
 
 	// 描画バッチ命令の終了
 	pD3DDevice->EndScene();

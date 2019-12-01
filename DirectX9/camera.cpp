@@ -4,19 +4,19 @@
 #include "Controller.h"
 
 // マクロ定義
-#define	CAM_POS_V_X		(0.0f)					// カメラの視点初期位置(X座標)
-#define	CAM_POS_V_Y		(100.0f)				// カメラの視点初期位置(Y座標)
-#define	CAM_POS_V_Z		(-500.0f)				// カメラの視点初期位置(Z座標)
-#define	CAM_POS_R_X		(0.0f)					// カメラの注視点初期位置(X座標)
-#define	CAM_POS_R_Y		(0.0f)					// カメラの注視点初期位置(Y座標)
-#define	CAM_POS_R_Z		(0.0f)					// カメラの注視点初期位置(Z座標)
-#define	VIEW_ANGLE		(D3DXToRadian(45.0f))							// ビュー平面の視野角
-#define	VIEW_ASPECT		((float)SCREEN_WIDTH / (float)SCREEN_HEIGHT)	// ビュー平面のアスペクト比
-#define	VIEW_NEAR_Z		(10.0f)											// ビュー平面のNearZ値
-#define	VIEW_FAR_Z		(1000.0f)										// ビュー平面のFarZ値
-#define VALUE_MOVE_CAMERA (1.0f)
-#define VALUE_ROTATE_CAMERA (D3DX_PI * 0.01f)
-#define VALUE_ADUJST_DINSTANCE   (2.0f)
+#define	CAM_POS_V_X		(0.0f)											//	カメラの視点初期位置(X座標)
+#define	CAM_POS_V_Y		(100.0f)										//	カメラの視点初期位置(Y座標)
+#define	CAM_POS_V_Z		(-500.0f)										//	カメラの視点初期位置(Z座標)
+#define	CAM_POS_R_X		(0.0f)											//	カメラの注視点初期位置(X座標)
+#define	CAM_POS_R_Y		(0.0f)											//	カメラの注視点初期位置(Y座標)
+#define	CAM_POS_R_Z		(0.0f)											//	カメラの注視点初期位置(Z座標)
+#define	VIEW_ANGLE		(D3DXToRadian(45.0f))							//	ビュー平面の視野角
+#define	VIEW_ASPECT		((float)SCREEN_WIDTH / (float)SCREEN_HEIGHT)	//	ビュー平面のアスペクト比
+#define	VIEW_NEAR_Z		(10.0f)											//	ビュー平面のNearZ値
+#define	VIEW_FAR_Z		(1000.0f)										//	ビュー平面のFarZ値
+#define VALUE_MOVE_CAMERA (1.0f)										//	カメラの移動量
+#define VALUE_ROTATE_CAMERA (D3DX_PI * 0.01f)							//	カメラの回転量
+#define VALUE_ADUJST_DINSTANCE   (2.0f)									//	視点と注視点間の移動量
 
 //	グローバル変数
 Camera g_camera;		// カメラ情報
@@ -191,11 +191,11 @@ void Camera::Update()
 		fVecZ = g_camera.posV.z - g_camera.posR.z;
 		g_camera.fDistance = sqrtf(fVecX*fVecX + fVecZ * fVecZ);
 	}
-	DebugProc_Print((char*)"[カメラの視点:(%f:%f:%f)]\n", g_camera.posV.x, g_camera.posV.y, g_camera.posV.z);
-	DebugProc_Print((char*)"[カメラの注視点:(%f:%f:%f)]\n", g_camera.posV.x, g_camera.posV.y, g_camera.posV.z);
-	DebugProc_Print((char*)"[カメラの向き:(%f)]\n", g_camera.rot.y);
-	DebugProc_Print((char*)"[カメラの距離:(%f)]\n", g_camera.fDistance);
-	DebugProc_Print((char*)"\n");
+	DebugProc::Print((char*)"[カメラの視点:(%f:%f:%f)]\n", g_camera.posV.x, g_camera.posV.y, g_camera.posV.z);
+	DebugProc::Print((char*)"[カメラの注視点:(%f:%f:%f)]\n", g_camera.posV.x, g_camera.posV.y, g_camera.posV.z);
+	DebugProc::Print((char*)"[カメラの向き:(%f)]\n", g_camera.rot.y);
+	DebugProc::Print((char*)"[カメラの距離:(%f)]\n", g_camera.fDistance);
+	DebugProc::Print((char*)"\n");
 }
 
 void Camera::Set()

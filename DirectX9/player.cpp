@@ -59,16 +59,16 @@ void Player::Update()
 	// カメラの取得
 	pCamera = GetCamera();
 
-	if (KeyBoard::IsPress(DIK_LEFT))
+	if (KeyBoard::IsPress(DIK_A))
 	{
-		if (KeyBoard::IsPress(DIK_UP))
+		if (KeyBoard::IsPress(DIK_W))
 		{// 左奥移動
 			moveModel.x += sinf(-D3DX_PI * 0.75f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 			moveModel.z -= cosf(-D3DX_PI * 0.75f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 
 			rotDestModel.y = pCamera->rot.y + D3DX_PI * 0.75f;
 		}
-		else if (KeyBoard::IsPress(DIK_DOWN))
+		else if (KeyBoard::IsPress(DIK_S))
 		{// 左手前移動
 			moveModel.x += sinf(-D3DX_PI * 0.25f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 			moveModel.z -= cosf(-D3DX_PI * 0.25f - pCamera->rot.y) * VALUE_MOVE_MODEL;
@@ -83,16 +83,16 @@ void Player::Update()
 			rotDestModel.y = pCamera->rot.y + D3DX_PI * 0.50f;
 		}
 	}
-	else if (KeyBoard::IsPress(DIK_RIGHT))
+	else if (KeyBoard::IsPress(DIK_D))
 	{
-		if (KeyBoard::IsPress(DIK_UP))
+		if (KeyBoard::IsPress(DIK_W))
 		{// 右奥移動
 			moveModel.x += sinf(D3DX_PI * 0.75f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 			moveModel.z -= cosf(D3DX_PI * 0.75f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 
 			rotDestModel.y = pCamera->rot.y - D3DX_PI * 0.75f;
 		}
-		else if (KeyBoard::IsPress(DIK_DOWN))
+		else if (KeyBoard::IsPress(DIK_S))
 		{// 右手前移動
 			moveModel.x += sinf(D3DX_PI * 0.25f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 			moveModel.z -= cosf(D3DX_PI * 0.25f - pCamera->rot.y) * VALUE_MOVE_MODEL;
@@ -107,14 +107,14 @@ void Player::Update()
 			rotDestModel.y = pCamera->rot.y - D3DX_PI * 0.50f;
 		}
 	}
-	else if (KeyBoard::IsPress(DIK_UP))
+	else if (KeyBoard::IsPress(DIK_W))
 	{// 前移動
 		moveModel.x += sinf(D3DX_PI * 1.0f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 		moveModel.z -= cosf(D3DX_PI * 1.0f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 
 		rotDestModel.y = pCamera->rot.y + D3DX_PI * 1.0f;
 	}
-	else if (KeyBoard::IsPress(DIK_DOWN))
+	else if (KeyBoard::IsPress(DIK_S))
 	{// 後移動
 		moveModel.x += sinf(D3DX_PI * 0.0f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 		moveModel.z -= cosf(D3DX_PI * 0.0f - pCamera->rot.y) * VALUE_MOVE_MODEL;
@@ -122,7 +122,7 @@ void Player::Update()
 		rotDestModel.y = pCamera->rot.y + D3DX_PI * 0.0f;
 	}
 
-	if (KeyBoard::IsPress(DIK_LSHIFT))
+	if (KeyBoard::IsPress(DIK_Q))
 	{// 左回転
 		rotDestModel.y -= VALUE_ROTATE_MODEL;
 		if (rotDestModel.y < -D3DX_PI)
@@ -130,7 +130,7 @@ void Player::Update()
 			rotDestModel.y += D3DX_PI * 2.0f;
 		}
 	}
-	if (KeyBoard::IsPress(DIK_RSHIFT))
+	if (KeyBoard::IsPress(DIK_E))
 	{// 右回転
 		rotDestModel.y += VALUE_ROTATE_MODEL;
 		if (rotDestModel.y > D3DX_PI)

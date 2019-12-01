@@ -1,230 +1,180 @@
-#include "field.h"
+/*===============================================
 
-#include "input.h"
+	[Field.cpp]
+	Author : 出合翔太
+
+===============================================*/
+
+#include "main.h"
+#include "field.h"
 #include "texture.h"
 #include "debugproc.h"
 
-#include <d3d9.h>
-#include <d3dx9.h>
-#include <dinput.h>
+//	マクロ定義
+#define SQUARE_LENGTH (100)					//	描画する地面の数
+#define SQUARE_NUM  (SQUARE_LENGTH + 1)		//	縮退ポリゴンを含めた地面の数
+#define VERTEX (pow(SQUARE_NUM,2)*2)		//	頂点の数
 
-//*****************************************************************************
-// マクロ定義
-//*****************************************************************************
+//	スタティック変数
+PDIRECT3DVERTEXBUFFER9		Field::m_pVtxBuffer;	//	頂点バッファへのポインタ
+PDIRECT3DINDEXBUFFER9		Field::m_pIdxBuffer;	//	頂点バッファへのポインタ
+PDIRECT3DDEVICE9			Field::m_pDevice;		//	デバイス
+D3DXVECTOR3					Field::m_posField;		//	地面の位置
+D3DXVECTOR3					Field::m_rotField;		//	地面の向き(回転)
+D3DXVECTOR3					Field::m_sclField;		//	地面の大きさ(スケール)
 
-#define VALUE_MOVE  (5.0f)       // 移動量
-#define VALUE_ROTATE (D3DX_PI * 0.02f)    // 回転量
-
-#define FIELD_WIDTH  (100.0f)      // 地面の幅(X方向)
-#define FIELD_HEIGHT (100.0f)      // 地面の幅(X方向)
-#define FIELD_DEPTH  (100.0f)      // 地面の奥行(Z方向)
-
-
-
-#define SQUARE_LENGTH (100)
-#define SQUARE_NUM  (SQUARE_LENGTH + 1)
-#define TYOTEN (pow(SQUARE_NUM,2)*2)
-//*****************************************************************************
-// プロトタイプ宣言
-//*****************************************************************************
-HRESULT MakeVertexField(LPDIRECT3DDEVICE9 pDevice);
-
-//*****************************************************************************
-// グローバル変数
-//*****************************************************************************
-LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffField = NULL; // 頂点バッファへのポインタ
-LPDIRECT3DINDEXBUFFER9  g_pIdxBuffField = NULL; // 頂点バッファへのポインタ
-int      g_NumIndexField = 18;
-
-D3DXMATRIX    g_mtxWorldField;  // ワールドマトリックス
-D3DXVECTOR3    g_posField;    // 地面の位置
-D3DXVECTOR3    g_posField1;   // 地面の位置
-D3DXVECTOR3    g_rotField;    // 地面の向き(回転)
-D3DXVECTOR3    g_rotField1;   // 地面の向き(回転)
-D3DXVECTOR3    g_sclField;    // 地面の大きさ(スケール)
-
-static float g_NumVertex;
-static float g_NumIndex;
-static float g_NumPolygon;
-
-//=============================================================================
-// 初期化処理
-//=============================================================================
-HRESULT Field_Initialize(void)
+//	初期化処理
+HRESULT Field::Init()
 {
-	LPDIRECT3DDEVICE9 pDevice = GetD3DDevice();
-
-	// 頂点情報の作成
-	MakeVertexField(pDevice);
-	//MakeVertexField1(pDevice1);
+	m_pDevice = GetD3DDevice();
+	
 	// 位置・回転・スケールの初期設定
-	g_posField = D3DXVECTOR3(0.0f, 0.0f, 100.0f);
-	g_rotField = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	g_sclField = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+	m_posField = D3DXVECTOR3(0.0f, 0.0f, 100.0f);
+	m_rotField = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	m_sclField = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+	
+	// 頂点情報の作成
+	MakeVertexField(m_pDevice);
 
-	//MoveBox = 1.0f;
-	//Select = 0;
 	return S_OK;
 }
 
-//=============================================================================
-// 終了処理
-//=============================================================================
-void Field_Finalize(void)
+//	終了処理
+void Field::Uninit()
 {
-	if (g_pVtxBuffField != NULL)
-	{// 頂点バッファの開放
-		g_pVtxBuffField->Release();
-		g_pVtxBuffField = NULL;
-	}
-
-	if (g_pIdxBuffField != NULL)
-	{// 頂点バッファの開放
-		g_pIdxBuffField->Release();
-		g_pIdxBuffField = NULL;
-	}
+	SAFE_RELEASE(m_pVtxBuffer);
+	SAFE_RELEASE(m_pIdxBuffer);
 }
 
-//=============================================================================
-// 更新処理
-//=============================================================================
-void Field_Update(void)
+//	描画処理
+void Field::Draw()
 {
-
-}
-
-//=============================================================================
-// 描画処理
-//=============================================================================
-void Field_Draw(void)
-{
-	LPDIRECT3DDEVICE9 pDevice = GetD3DDevice();
+	m_pDevice = GetD3DDevice();
 	D3DXMATRIX mtxScl, mtxRot, mtxTranslate;
 
-	pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	m_pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 
-	//ワールドマトリックスの初期化
-	D3DXMatrixIdentity(&g_mtxWorldField);
+	//	ワールドマトリックスの初期化
+	D3DXMatrixIdentity(&m_mtxWorld);
 
-	//スケールを反映
-	D3DXMatrixScaling(&mtxScl, g_sclField.x, g_sclField.y, g_sclField.z);
-	D3DXMatrixMultiply(&g_mtxWorldField, &g_mtxWorldField, &mtxScl);
+	//	スケールを反映
+	D3DXMatrixScaling(&mtxScl, m_sclField.x, m_sclField.y, m_sclField.z);
+	D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxScl);
 
-	//回転を反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, g_rotField.x, g_rotField.y, g_rotField.z);
-	D3DXMatrixMultiply(&g_mtxWorldField, &g_mtxWorldField, &mtxRot);
+	//	回転を反映
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, m_rotField.x, m_rotField.y, m_rotField.z);
+	D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxRot);
 
-	//移動を反映
-	D3DXMatrixTranslation(&mtxTranslate, g_posField.x, g_posField.y, g_posField.z);
-	D3DXMatrixMultiply(&g_mtxWorldField, &g_mtxWorldField, &mtxTranslate);
+	//	移動を反映
+	D3DXMatrixTranslation(&mtxTranslate, m_posField.x, m_posField.y, m_posField.z);
+	D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxTranslate);
 
-	//ワールドマトリックスの設定
-	pDevice->SetTransform(D3DTS_WORLD, &g_mtxWorldField);
+	//	ワールドマトリックスの設定
+	m_pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorld);
 
-	//
-	pDevice->SetStreamSource(0, g_pVtxBuffField, 0, sizeof(VERTEX_3D));
+	//	頂点バッファをデバイスのデータストリームにバインド
+	//	引数（頂点バッファを設定するストリームID、第2引数:頂点バッファへのポインタ、ストリームの先頭から頂点データの先頭までのオフセット、頂点データの一つ分のデータサイズをバイト単位で指定）
+	m_pDevice->SetStreamSource(0, m_pVtxBuffer, 0, sizeof(VERTEX_3D));
 
-	pDevice->SetIndices(g_pIdxBuffField);
-	//インデックスバッファのセット
-	pDevice->SetFVF(FVF_VERTEX3D);
+	//	インデックスバッファのセット
+	m_pDevice->SetIndices(m_pIdxBuffer);
+	
+	m_pDevice->SetFVF(FVF_VERTEX3D);
 
-	//テクスチャの設定
-	pDevice->SetTexture(0, Texture_GetTexture(TEXTURE_INDEX_FIELD01));
+	//	テクスチャの設定
+	m_pDevice->SetTexture(0, Texture::GetTexture(TEXTURE_INDEX_FIELD01));
 
-	//ポリゴンの描画
-	pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, 0, 0, TYOTEN, 0, TYOTEN - 4);
+	//	ポリゴンの描画
+	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, 0, 0, VERTEX, 0, VERTEX - 4);
 
-
-	DebugProc_Print((char*)"*** ３Ｄポリゴン操作 ***\n");
-	DebugProc_Print((char*)"位置 [%f : %f : %f]\n", g_posField.x, g_posField.y, g_posField.z);
-	DebugProc_Print((char*)"前移動 : Ｗ\n");
-	DebugProc_Print((char*)"後移動 : Ｓ\n");
-	DebugProc_Print((char*)"左移動 : Ａ\n");
-	DebugProc_Print((char*)"右移動 : Ｄ\n");
-	DebugProc_Print((char*)"\n");
-
-	DebugProc_Print((char*)"向き [%f : %f : %f]\n", g_rotField.x, g_rotField.y, g_rotField.z);
-	DebugProc_Print((char*)"X軸回転 : ↑ / ↓\n");
-	DebugProc_Print((char*)"Y軸回転 : Ｑ / Ｅ\n");
-	DebugProc_Print((char*)"Z軸回転 : ← / →\n");
-	DebugProc_Print((char*)"\n");
-
-	DebugProc_Print((char*)"位置・向きリセット : ENTER\n");
+	//	文字列の描画
+	DebugProc::Print((char*)"*** ３Ｄポリゴン操作 ***\n");
+	DebugProc::Print((char*)"位置 [%f : %f : %f]\n", m_posField.x, m_posField.y, m_posField.z);
+	DebugProc::Print((char*)"前移動 : Ｗ\n");
+	DebugProc::Print((char*)"後移動 : Ｓ\n");
+	DebugProc::Print((char*)"左移動 : Ａ\n");
+	DebugProc::Print((char*)"右移動 : Ｄ\n");
+	DebugProc::Print((char*)"\n");
+	DebugProc::Print((char*)"向き [%f : %f : %f]\n", m_rotField.x, m_rotField.y, m_rotField.z);
+	DebugProc::Print((char*)"X軸回転 : ↑ / ↓\n");
+	DebugProc::Print((char*)"Y軸回転 : Ｑ / Ｅ\n");
+	DebugProc::Print((char*)"Z軸回転 : ← / →\n");
+	DebugProc::Print((char*)"\n");
+	DebugProc::Print((char*)"位置・向きリセット : ENTER\n");
 }
 
-//=============================================================================
-// 頂点の作成
-//=============================================================================
-HRESULT MakeVertexField(LPDIRECT3DDEVICE9 pDevice)
+//	頂点作成
+HRESULT Field::MakeVertexField(LPDIRECT3DDEVICE9 m_pDevice)
 {
-	if (FAILED(pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * TYOTEN / 2,
-		D3DUSAGE_WRITEONLY,
-		FVF_VERTEX3D,
-		D3DPOOL_MANAGED,
-		&g_pVtxBuffField,
+	if (FAILED(m_pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * VERTEX / 2,	//	頂点バッファサイズ
+		D3DUSAGE_WRITEONLY,														//	リリース制御を表すフラグ
+		FVF_VERTEX3D,															//	頂点フォーマットの設定
+		D3DPOOL_MANAGED,														//	使用するメモリ（D3DPOLL列挙型）
+		&m_pVtxBuffer,															//	生成した頂点バッファを受け取るポインタのアドレス
 		NULL)))
 	{
 		return E_FAIL;
+		//	メゾット失敗のエラー値	定数と解説
+		//	D3DERR_INVALIDCALL		->	メソッドの呼び出しが無効である
+		//	D3DERR_OUTOFVIDEOMEMORY	->	十分なディスプレイメモリが存在しない
+		//	E_OUTOFMEMORY			->	十分なメモリを割り当てることができない
 	}
 
-
 	{
-		//頂点バッファの中身を埋める
-		VERTEX_3D *pVtx;
+		//	頂点バッファの中身を埋める
+		VERTEX_3D *pVtx;	//	頂点データへのポインタアドレス
 
-		//VRAM上の情報を持ってくるから、頂点をいじれるようになる
-		g_pVtxBuffField->Lock(0, 0, (void**)&pVtx, 0);
+		//	Lock関数
+		//	引数（ロックする頂点データのオフセットを指定、ロックする範囲をバイト単位で指定、頂点データへのポインタのアドレスをキャスト(void**)してを指定、ロックの方法を表すフラグ）
+		m_pVtxBuffer->Lock(0, 0, (void**)&pVtx, 0);		//	頂点データの指定範囲をロックし、バッファへのポインタを取得します
 
-		for (int z = 0; z < SQUARE_NUM; z++) {
-			for (int x = 0; x < SQUARE_NUM; x++) {
-
-				pVtx[z * SQUARE_NUM + x].pos = D3DXVECTOR3(x * 10.0f - 500.0f, 0.0f, z * -10.0f + 400.0f);
-
-				pVtx[z * SQUARE_NUM + x].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-
-				pVtx[z * SQUARE_NUM + x].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
-				pVtx[z * SQUARE_NUM + x].tex.x = (float)x;
-				pVtx[z * SQUARE_NUM + x].tex.y = (float)z;
+		//	頂点の設定
+		for (int z = 0; z < SQUARE_NUM; z++)
+		{
+			for (int x = 0; x < SQUARE_NUM; x++) 
+			{
+				pVtx[z * SQUARE_NUM + x].pos = D3DXVECTOR3(x * 10.0f - 500.0f,0.0f, z * -10.0f + 100.0f);	//	位置
+				pVtx[z * SQUARE_NUM + x].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);								//	法線ベクトル
+				pVtx[z * SQUARE_NUM + x].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);							//	頂点カラー
+				pVtx[z * SQUARE_NUM + x].tex.x = (float)x;													//	テクスチャのx座標
+				pVtx[z * SQUARE_NUM + x].tex.y = (float)z;													//	テクスチャのy座標
 			}
 		}
 
-
-		//ここでVRAMへ帰す
-		g_pVtxBuffField->Unlock();
+		//	Unlock関数	
+		m_pVtxBuffer->Unlock();	//	データをVRAMへ返す
 	}
 
-	if (FAILED(pDevice->CreateIndexBuffer(sizeof(WORD) * TYOTEN,
+	if (FAILED(m_pDevice->CreateIndexBuffer(sizeof(WORD) * VERTEX,	//	配列にWORD型なのは,指定フォーマットが2種類しかないから。（WORD型は16ビット）
 		D3DUSAGE_WRITEONLY,
-		D3DFMT_INDEX16,
+		D3DFMT_INDEX16,												//	指定できるのはD3DFMT_INDEX16(16ビット)とD3DFMT_INDEX32(32ビット)のみ
 		D3DPOOL_MANAGED,
-		&g_pIdxBuffField,
+		&m_pIdxBuffer,
 		NULL)))
 	{
 		return E_FAIL;
 	}
+
 	{//インデックスバッファの中身を埋める
 		WORD *pIdx;
 
-		g_pIdxBuffField->Lock(0, 0, (void**)&pIdx, 0);
+		m_pIdxBuffer->Lock(0, 0, (void**)&pIdx, 0);
 
 		//for文をわかりやすくするための変数
-		static int cnt1 = SQUARE_NUM;
-		static int cnt2 = 0;
+		int cnt1 = SQUARE_NUM;
+		int cnt2 = 0;
+		int DegenerateCnt = 1;	//	縮退ポリゴンのカウント
 
-		//縮退ポリゴンのカウント
-		static int cnt3 = 1;
-
-		for (int i = 0; i < TYOTEN; i++)
+		for (int i = 0; i < VERTEX; i++)
 		{
 			//縮退ポリゴンを書く時
-			if (i == ((SQUARE_LENGTH + 1) * 2 + 2) * cnt3 - 2 && i != 0)
+			if (i == ((SQUARE_LENGTH + 1) * 2 + 2) * DegenerateCnt - 2 && i != 0)
 			{
 				pIdx[i] = pIdx[i - 1];  //前の頂点に被せる
-				pIdx[i + 1] = cnt1;   //先の頂点
-				pIdx[i + 2] = cnt1;   //前の頂点に被せる
-				i += 2;      //二回点余分に代入したので+2
-				cnt3++;      //縮退ポリゴンの回数を増やす
+				pIdx[i + 1] = cnt1;		//先の頂点
+				pIdx[i + 2] = cnt1;		//前の頂点に被せる
+				i += 2;					//二回点余分に代入したので+2
+				DegenerateCnt++;					//縮退ポリゴンの回数を増やす
 			}
 			//縮退ポリゴンを書かないとき(iが偶数か見る)
 			if (i % 2 == 0)
@@ -239,35 +189,9 @@ HRESULT MakeVertexField(LPDIRECT3DDEVICE9 pDevice)
 			}
 		}
 
-		/*pIdx[0] = 6;
-		pIdx[1] = 0;
-		pIdx[2] = 7;
-		pIdx[3] = 1;
-		pIdx[4] = 8;
-		pIdx[5] = 2;
-		pIdx[6] = 9;
-		pIdx[7] = 3;
-		pIdx[8] = 10;
-		pIdx[9] = 4;
-		pIdx[10] = 11;
-		pIdx[11] = 5;
-		pIdx[12] = 5;
-		pIdx[13] = 12;
-		pIdx[14] = 12;
-		pIdx[15] = 6;
-		pIdx[16] = 13;
-		pIdx[17] = 7;
-		pIdx[18] = 14;
-		pIdx[19] = 8;
-		pIdx[20] = 15;
-		pIdx[21] = 9;
-		pIdx[22] = 16;
-		pIdx[23] = 10;
-		pIdx[24] = 18;
-		pIdx[25] = 11;*/
-
 		//ここでVRAMへ帰す
-		g_pVtxBuffField->Unlock();
+		m_pVtxBuffer->Unlock();
 	}
 	return S_OK;
 }
+

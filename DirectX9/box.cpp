@@ -1,486 +1,169 @@
+/*===============================================
+
+	[box.cpp]
+	Author : 出合翔太
+
+================================================*/
 
 #include "Box.h"
-
-#include "input.h"
 #include "texture.h"
 #include "debugproc.h"
 
-//*****************************************************************************
 // マクロ定義
-//*****************************************************************************
+#define	VALUE_MOVE		(5.0f)				//	移動量
+#define	VALUE_ROTATE	(D3DX_PI * 0.02f)	//	回転量
+#define	BOX_WIDTH		(100.0f)			//	幅(X方向)の大きさ
+#define	BOX_DEPTH		(100.0f)			//	奥行(Z方向)大きさ
+#define BOX_HEIGHT      (100.0f)			//	高さ(Y方向)大きさ		
+#define NUM_BOX 2							//	BOXの数
 
-#define	VALUE_MOVE		(5.0f)							// 移動量
-#define	VALUE_ROTATE	(D3DX_PI * 0.02f)				// 回転量
+//	グローバル変数
+Box m_Box[NUM_BOX];
+VERTEX_3D pVtx[4];
 
-#define	BOX_WIDTH		(100.0f)						// 地面の幅(X方向)
-#define	BOX_DEPTH		(100.0f)						// 地面の奥行(Z方向)
-#define BOX_HEIGHT      (100.0f)
+// スタティック変数
+LPDIRECT3DVERTEXBUFFER9 Box::m_pVtxBuffBox = NULL;	// 頂点バッファへのポインタ
+LPDIRECT3DINDEXBUFFER9  Box::m_pIdxBuffBox = NULL;
+int						Box::m_NumVertexBox = 36;
+D3DXVECTOR3				Box::m_posBox;				// 地面の位置
+D3DXVECTOR3				Box::m_rot1Box;				// 地面の向き(回転)
+D3DXVECTOR3				Box::m_rot2Box;				// 地面の向き(回転)
+D3DXVECTOR3				Box::m_sclBox;				// 地面の大きさ(スケール)
+LPDIRECT3DDEVICE9		Box::m_pDevice;
 
-//*****************************************************************************
-// プロトタイプ宣言
-//*****************************************************************************
-HRESULT MakeVertexBox(LPDIRECT3DDEVICE9 pDevice);
-
-//*****************************************************************************
-// グローバル変数
-//*****************************************************************************
-LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffBox = NULL;	// 頂点バッファへのポインタ
-LPDIRECT3DINDEXBUFFER9  g_pIdxBuffBox = NULL;
-static int             g_NumIndexBox = 36;
-
-#define NUM_BOX 2
-
-typedef struct {
-	D3DXMATRIX				g_mtxWorldBox;		// ワールドマトリックス
-	D3DXVECTOR3				g_posBox;				// 地面の位置
-	D3DXVECTOR3				g_rot1Box;				// 地面の向き(回転)
-	D3DXVECTOR3				g_rot2Box;				// 地面の向き(回転)
-	D3DXVECTOR3				g_sclBox;				// 地面の大きさ(スケール)
-}BOX_T;
-
-static BOX_T g_Box[NUM_BOX];
-
-//blockBox g_blockBox[2];
-
-
-//float g_move_x = 5.0f;
-//float g_scl_x = 0.01f;
-//float g_rot1_x = 0.01f;
-
-//=============================================================================
-// 初期化処理
-//=============================================================================
-HRESULT Box_Initialize(void)
+//	初期化処理
+HRESULT Box::Init()
 {
-	LPDIRECT3DDEVICE9 pDevice = GetD3DDevice();
+	m_pDevice = GetD3DDevice();
+
+	pVtx[0].pos = D3DXVECTOR3(-100, 0.0f, 100);
+	pVtx[1].pos = D3DXVECTOR3(100, 0.0f, 100);
+	pVtx[2].pos = D3DXVECTOR3(-100, 0.0f, -100);
+	pVtx[3].pos = D3DXVECTOR3(100, 0.0f, -100);
+
+	pVtx[0].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+	pVtx[1].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+	pVtx[2].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+	pVtx[3].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+
+	pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
+	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+	pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
+	pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+	pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
 
 	// 頂点情報の作成
-	MakeVertexBox(pDevice);
+	MakeVertexBox(m_pDevice);
 
 	// 位置・回転・スケールの初期設定
 	for (int i = 0; i < NUM_BOX; i++)
 	{
-		g_Box[i].g_posBox = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		g_Box[i].g_rot1Box = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		g_Box[i].g_sclBox = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+		m_Box[i].m_posBox = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		m_Box[i].m_rot1Box = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		m_Box[i].m_rot2Box = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		m_Box[i].m_sclBox = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
 	}
 	return S_OK;
 }
 
-//=============================================================================
-// 終了処理
-//=============================================================================
-void Box_Finalize(void)
+//	終了処理
+void Box::Uninit()
 {
-	if (g_pIdxBuffBox != NULL)
-	{
-		g_pIdxBuffBox->Release();
-		g_pIdxBuffBox = NULL;
-	}
-
-	if(g_pVtxBuffBox != NULL)
-	{// 頂点バッファの開放
-		g_pVtxBuffBox->Release();
-		g_pVtxBuffBox = NULL;
-	}
+	SAFE_RELEASE(m_pIdxBuffBox);
+	SAFE_RELEASE(m_pVtxBuffBox);
 }
 
-//=============================================================================
-// 更新処理
-//=============================================================================
-void Box_Update(void)
+//	更新処理
+void Box::Update()
 {
 	D3DXMATRIX mtxScl, mtxRot, mtxTranslate;
 	for (int i = 0; i < NUM_BOX; i++)
 	{
 		//ワールドマトリックスの初期化
-		D3DXMatrixIdentity(&g_Box[i].g_mtxWorldBox);
+		D3DXMatrixIdentity(&m_Box[i].m_mtxWorldBox);
 	}
 
-	g_Box[0].g_rot1Box.y += 0.01f;
+	m_Box[0].m_rot1Box.y += 0.01f;
 
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, g_Box[0].g_rot1Box.y, g_Box[0].g_rot1Box.x, g_Box[0].g_rot1Box.z);
-	D3DXMatrixMultiply(&g_Box[0].g_mtxWorldBox, &g_Box[0].g_mtxWorldBox, &mtxRot);
-
-
-	g_Box[0].g_posBox.x = 100.0f;
-	g_Box[0].g_posBox.z = 100.0f;
-
-	D3DXMatrixTranslation(&mtxTranslate, g_Box[0].g_posBox.x, g_Box[0].g_posBox.y, g_Box[0].g_posBox.z);
-	D3DXMatrixMultiply(&g_Box[0].g_mtxWorldBox, &g_Box[0].g_mtxWorldBox, &mtxTranslate);
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, m_Box[0].m_rot1Box.y, m_Box[0].m_rot1Box.x, m_Box[0].m_rot1Box.z);
+	D3DXMatrixMultiply(&m_Box[0].m_mtxWorldBox, &m_Box[0].m_mtxWorldBox, &mtxRot);
 
 
-	g_Box[1].g_rot1Box.y -= 0.05f;
+	m_Box[0].m_posBox.x = 100.0f;
+	m_Box[0].m_posBox.z = 100.0f;
 
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, g_Box[1].g_rot1Box.y, g_Box[1].g_rot1Box.x, g_Box[1].g_rot1Box.z);
-	D3DXMatrixMultiply(&g_Box[1].g_mtxWorldBox, &g_Box[1].g_mtxWorldBox, &mtxRot);
+	D3DXMatrixTranslation(&mtxTranslate, m_Box[0].m_posBox.x, m_Box[0].m_posBox.y, m_Box[0].m_posBox.z);
+	D3DXMatrixMultiply(&m_Box[0].m_mtxWorldBox, &m_Box[0].m_mtxWorldBox, &mtxTranslate);
 
-	g_Box[1].g_posBox.x = 120.0f;
-	g_Box[1].g_posBox.z = 100.0f;
 
-	D3DXMatrixTranslation(&mtxTranslate, g_Box[1].g_posBox.x, g_Box[1].g_posBox.y, g_Box[1].g_posBox.z);
-	D3DXMatrixMultiply(&g_Box[1].g_mtxWorldBox, &g_Box[1].g_mtxWorldBox, &mtxTranslate);
+	m_Box[1].m_rot1Box.y -= 0.05f;
 
-	g_Box[1].g_rot2Box.y += 0.05f;
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, m_Box[1].m_rot1Box.y, m_Box[1].m_rot1Box.x, m_Box[1].m_rot1Box.z);
+	D3DXMatrixMultiply(&m_Box[1].m_mtxWorldBox, &m_Box[1].m_mtxWorldBox, &mtxRot);
 
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, g_Box[1].g_rot2Box.y, g_Box[1].g_rot2Box.x, g_Box[1].g_rot2Box.z);
-	D3DXMatrixMultiply(&g_Box[1].g_mtxWorldBox, &g_Box[1].g_mtxWorldBox, &mtxRot);
+	m_Box[1].m_posBox.x = 120.0f;
+	m_Box[1].m_posBox.z = 100.0f;
+
+	D3DXMatrixTranslation(&mtxTranslate, m_Box[1].m_posBox.x, m_Box[1].m_posBox.y, m_Box[1].m_posBox.z);
+	D3DXMatrixMultiply(&m_Box[1].m_mtxWorldBox, &m_Box[1].m_mtxWorldBox, &mtxTranslate);
+
+	m_Box[1].m_rot2Box.y += 0.05f;
+
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, m_Box[1].m_rot2Box.y, m_Box[1].m_rot2Box.x, m_Box[1].m_rot2Box.z);
+	D3DXMatrixMultiply(&m_Box[1].m_mtxWorldBox, &m_Box[1].m_mtxWorldBox, &mtxRot);
 
 	D3DXVECTOR3 pos;
 	pos.x = 100.0f;
 	pos.y = 100.0f;
 	pos.z = 100.0f;
 
-	D3DXMatrixTranslation(&mtxTranslate, g_Box[1].g_posBox.x, g_Box[1].g_posBox.y, g_Box[1].g_posBox.z);
-	D3DXMatrixMultiply(&g_Box[1].g_mtxWorldBox, &g_Box[1].g_mtxWorldBox, &mtxTranslate);
-#if 0
-	//四角の拡大縮小いじり
-	{
-		g_sclBox.x += g_scl_x;
-		if (g_sclBox.x > 3.0f || g_sclBox.x < 1.0f)
-		{
-		g_scl_x *= -1;
-		}
-
-		g_sclBox.z += g_scl_x;
-		if (g_sclBox.z > 3.0f || g_sclBox.z < 1.0f)
-		{
-		g_scl_x *= -1;
-		}
-
-		g_sclBox.y += g_scl_x;
-		if (g_sclBox.y > 3.0f || g_sclBox.y < 1.0f)
-		{
-		g_scl_x *= -1;
-		}
-	
-	}
-	//スケールを反映
-	{
-		D3DXMatrixScaling(&mtxScl, g_sclBox.x, g_sclBox.y, g_sclBox.z);
-		D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxScl);
-	}	
-	四角の角度いじり
-	{
-		g_rotBox.z = D3DXToRadian(45);
-	}
-	四角の回転
-	{
-		g_rot1Box.y -= 0.03f;
-		g_rot2Box.y += 0.03f;
-	}
-	中心を変更して回転
-	{
-		
-		回転反映→移動判定を移動判定→回転判定に変える
-		
-	}
-	四角の移動
-	{
-		g_posBox.x += g_move_x;
-		if (g_posBox.x >220.0f|| g_posBox.x < -220.0f)
-		{
-		g_move_x*=-1 ;
-		}
-
-	}
-	
-	固定位置
-	{
-
-		g_posBox.x = 300;
-		g_posBox.y = 100;
-		g_posBox.z = 300;
-
-	}
-	回転を反映
-	
-	{
-		D3DXMatrixRotationYawPitchRoll(&mtxRot, g_blockBox[0].g_rot1Box.y, g_blockBox[0].g_rot1Box.x, g_rot1Box.z);
-		D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxRot);
-	}
-	
-	移動を反映
-	
-	{
-		D3DXMatrixTranslation(&mtxTranslate, g_posBox.x, g_posBox.y, g_posBox.z);
-		D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxTranslate);
-	}
-	
-	回転を反映(普通の回転)
-	
-	{
-		D3DXMatrixRotationYawPitchRoll(&mtxRot, g_rot2Box.y, g_rot2Box.x, g_rot2Box.z);
-		D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxRot);
-	}
-	
-	回転を反映
-	
-	{
-		D3DXMatrixRotationYawPitchRoll(&mtxRot, g_blockBox[0].g_rot1Box.y, g_rot1Box.x, g_rot1Box.z);
-		D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxRot);
-	}
-	
-	移動を反映
-	{
-		D3DXMatrixTranslation(&mtxTranslate, g_posBox.x, g_posBox.y, g_posBox.z);
-		D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxTranslate);
-	}
-
-	回転を反映
-	{
-		D3DXMatrixRotationYawPitchRoll(&mtxRot, g_rot2Box.y, g_rot2Box.x, g_rot2Box.z);
-		D3DXMatrixMultiply(&g_mtxWorldBox, &g_mtxWorldBox, &mtxRot);
-	}
-	if (KeyBoard::IsPress(DIK_A))
-	{
-		if (KeyBoard::IsPress(DIK_W))
-		{// 左奥移動
-			g_posBox.x += sinf(-D3DX_PI * 0.75f) * VALUE_MOVE;
-			g_posBox.z -= cosf(-D3DX_PI * 0.75f) * VALUE_MOVE;
-		}
-		else if (KeyBoard::IsPress(DIK_S))
-		{// 左手前移動
-			g_posBox.x += sinf(-D3DX_PI * 0.25f) * VALUE_MOVE;
-			g_posBox.z -= cosf(-D3DX_PI * 0.25f) * VALUE_MOVE;
-		}
-		else
-		{// 左移動
-			g_posBox.x += sinf(-D3DX_PI * 0.50f) * VALUE_MOVE;
-			g_posBox.z -= cosf(-D3DX_PI * 0.50f) * VALUE_MOVE;
-		}
-	}
-	else if (KeyBoard::IsPress(DIK_D))
-	{
-		if (KeyBoard::IsPress(DIK_W))
-		{// 右奥移動
-			g_posBox.x += sinf(D3DX_PI * 0.75f) * VALUE_MOVE;
-			g_posBox.z -= cosf(D3DX_PI * 0.75f) * VALUE_MOVE;
-		}
-		else if (KeyBoard::IsPress(DIK_S))
-		{// 右手前移動
-			g_posBox.x += sinf(D3DX_PI * 0.25f) * VALUE_MOVE;
-			g_posBox.z -= cosf(D3DX_PI * 0.25f) * VALUE_MOVE;
-		}
-		else
-		{// 右移動
-			g_posBox.x += sinf(D3DX_PI * 0.50f) * VALUE_MOVE;
-			g_posBox.z -= cosf(D3DX_PI * 0.50f) * VALUE_MOVE;
-		}
-	}
-	else if (KeyBoard::IsPress(DIK_W))
-	{// 奥移動
-		g_posBox.x += sinf(D3DX_PI * 1.0f) * VALUE_MOVE;
-		g_posBox.z -= cosf(D3DX_PI * 1.0f) * VALUE_MOVE;
-	}
-	else if (KeyBoard::IsPress(DIK_S))
-	{// 手前移動
-		g_posBox.x += sinf(D3DX_PI * 0.0f) * VALUE_MOVE;
-		g_posBox.z -= cosf(D3DX_PI * 0.0f) * VALUE_MOVE;
-	}
-
-	if (KeyBoard::IsPress(DIK_Q))
-	{// Y軸左回転
-		g_rotBox.y -= VALUE_ROTATE;
-		if(g_rotBox.y > D3DX_PI)
-		{
-			g_rotBox.y -= D3DX_PI * 2.0f;
-		}
-		if(g_rotBox.y < -D3DX_PI)
-		{
-			g_rotBox.y += D3DX_PI * 2.0f;
-		}
-	}
-	if (KeyBoard::IsPress(DIK_E))
-	{// Y軸右回転
-		g_rotBox.y += VALUE_ROTATE;
-		if(g_rotBox.y > D3DX_PI)
-		{
-			g_rotBox.y -= D3DX_PI * 2.0f;
-		}
-		if(g_rotBox.y < -D3DX_PI)
-		{
-			g_rotBox.y += D3DX_PI * 2.0f;
-		}
-	}
-
-	if (KeyBoard::IsPress(DIK_UP))
-	{// X軸右回転
-		g_rotBox.x += VALUE_ROTATE;
-		if(g_rotBox.x > D3DX_PI)
-		{
-			g_rotBox.x -= D3DX_PI * 2.0f;
-		}
-		if(g_rotBox.x < -D3DX_PI)
-		{
-			g_rotBox.x += D3DX_PI * 2.0f;
-		}
-	}
-	if (KeyBoard::IsPress(DIK_DOWN))
-	{// X軸左回転
-		g_rotBox.x -= VALUE_ROTATE;
-		if(g_rotBox.x > D3DX_PI)
-		{
-			g_rotBox.x -= D3DX_PI * 2.0f;
-		}
-		if(g_rotBox.x < -D3DX_PI)
-		{
-			g_rotBox.x += D3DX_PI * 2.0f;
-		}
-	}
-
-
-	if (KeyBoard::IsPress(DIK_LEFT))
-	{// Z軸右回転
-		g_rotBox.z += VALUE_ROTATE;
-		if(g_rotBox.z > D3DX_PI)
-		{
-			g_rotBox.z -= D3DX_PI * 2.0f;
-		}
-		if(g_rotBox.z < -D3DX_PI)
-		{
-			g_rotBox.z += D3DX_PI * 2.0f;
-		}
-	}
-	if (KeyBoard::IsPress(DIK_RIGHT))
-	{// Z軸左回転
-		g_rotBox.z -= VALUE_ROTATE;
-		if(g_rotBox.z > D3DX_PI)
-		{
-			g_rotBox.z -= D3DX_PI * 2.0f;
-		}
-		if(g_rotBox.z < -D3DX_PI)
-		{
-			g_rotBox.z += D3DX_PI * 2.0f;
-		}
-	}
-
-	if (KeyBoard::IsPress(DIK_RETURN))
-	{// リセット
-		g_posBox.x = 0.0f;
-		g_posBox.y = 0.0f;
-		g_posBox.z = 0.0f;
-
-		g_rotBox.x = 0.0f;
-		g_rotBox.y = 0.0f;
-		g_rotBox.z = 0.0f;
-	}
-
-	DebugProc_Print("*** ３Ｄポリゴン操作 ***\n");
-	DebugProc_Print("位置 [%f : %f : %f]\n", g_posBox.x, g_posBox.y, g_posBox.z);
-	DebugProc_Print("前移動 : Ｗ\n");
-	DebugProc_Print("後移動 : Ｓ\n");
-	DebugProc_Print("左移動 : Ａ\n");
-	DebugProc_Print("右移動 : Ｄ\n");
-	DebugProc_Print("\n");
-
-	DebugProc_Print("向き [%f : %f : %f]\n", g_rotBox.x, g_rotBox.y, g_rotBox.z);
-	DebugProc_Print("X軸回転 : ↑ / ↓\n");
-	DebugProc_Print("Y軸回転 : Ｑ / Ｅ\n");
-	DebugProc_Print("Z軸回転 : ← / →\n");
-	DebugProc_Print("\n");
-
-	DebugProc_Print("位置・向きリセット : ENTER\n");
-#endif
+	D3DXMatrixTranslation(&mtxTranslate, m_Box[1].m_posBox.x, m_Box[1].m_posBox.y, m_Box[1].m_posBox.z);
+	D3DXMatrixMultiply(&m_Box[1].m_mtxWorldBox, &m_Box[1].m_mtxWorldBox, &mtxTranslate);
 }
 
-//=============================================================================
-// 描画処理
-//=============================================================================
-void Box_Draw(void)
+//	描画処理
+void Box::Draw()
 {
+	m_pDevice = GetD3DDevice();
+	D3DXMATRIX mtxWorld;		//ワールドマトリックスの初期化
 
-	LPDIRECT3DDEVICE9 pDevice = GetD3DDevice();
-	for (int i = 0; i < NUM_BOX; i++)
-	{//ワールドマトリクスの設定
-
-		//ワールドマトリックスの初期化
-		D3DXMATRIX mtxWorld;
+	//ワールドマトリクスの設定
+	for (int i = 0; i < 6; i++)
+	{
 		D3DXMatrixIdentity(&mtxWorld);
-
-		pDevice->SetTransform(D3DTS_WORLD, &g_Box[i].g_mtxWorldBox);
-		//頂点バッファをデバイスのデータストリームにバインド
-		pDevice->SetStreamSource(0, g_pVtxBuffBox, 0, sizeof(VERTEX_3D));
-		//インデックスバッファのセット
-		pDevice->SetIndices(g_pIdxBuffBox);
-		//頂点フォーマットに設定
-		pDevice->SetFVF(FVF_VERTEX3D);
-		//テクスチャの設定
-		pDevice->SetTexture(0, Texture_GetTexture(TEXTURE_INDEX_FIELD01));
-		//メモリからVRAMにぶち込む、すぐ消えない
-		/*pDevice->DrawPrimitive (D3DPT_TRIANGLELIST,0,NUM_POLYGON);
-		*/
-		//ポリゴンの描画（インデックスバッファ版）
-		pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, 0, 0, g_NumIndexBox, 0, 12);
+		DrawPolygon(i);
+		m_pDevice->SetStreamSource(0, m_pVtxBuffBox, 0, sizeof(VERTEX_3D));					//頂点バッファをデバイスのデータストリームにバインド
+		m_pDevice->SetIndices(m_pIdxBuffBox);												//インデックスバッファのセット
+		m_pDevice->SetFVF(FVF_VERTEX3D);													//頂点フォーマットに設定
+		m_pDevice->SetTexture(0, Texture::GetTexture(TEXTURE_INDEX_FIELD01));				//テクスチャの設定
+		m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, 0, 0, m_NumVertexBox, 0, 12);	//ポリゴンの描画
 	}
 }
 
-//=============================================================================
-// 頂点の作成
-//=============================================================================
-HRESULT MakeVertexBox(LPDIRECT3DDEVICE9 pDevice)
+HRESULT Box::MakeVertexBox(LPDIRECT3DDEVICE9 pDevice)
 {
 	//オブジェクトの頂点バッファを生成
-	if (FAILED(pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * 36,
-		D3DUSAGE_WRITEONLY,
-		FVF_VERTEX3D,
-		D3DPOOL_MANAGED,
-		&g_pVtxBuffBox,
-		NULL)))
+	if (FAILED(pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * 36,D3DUSAGE_WRITEONLY,FVF_VERTEX3D,D3DPOOL_MANAGED,&m_pVtxBuffBox,NULL)))
 	{
 		return E_FAIL;
 	}
 
-	{//頂点バッファの中身を埋める
-		VERTEX_3D *pVtx;
+	{
+		//頂点バッファの中身を埋める
+		void *pVtx2;
 
-		g_pVtxBuffBox->Lock(0, 0, (void**)&pVtx, 0);
+		m_pVtxBuffBox->Lock(0, 0, (void**)&pVtx2, 0);
+		memcpy(pVtx2, pVtx, sizeof(VERTEX_3D) * 4);
+		m_pVtxBuffBox->Unlock();
 
-		pVtx[0].pos = D3DXVECTOR3(-BOX_WIDTH, BOX_HEIGHT, -BOX_DEPTH);
-		pVtx[1].pos = D3DXVECTOR3(BOX_WIDTH, BOX_HEIGHT, -BOX_DEPTH);
-		pVtx[2].pos = D3DXVECTOR3(-BOX_WIDTH, -BOX_HEIGHT, -BOX_DEPTH);
-		pVtx[3].pos = D3DXVECTOR3(BOX_WIDTH, -BOX_HEIGHT, -BOX_DEPTH);
-		pVtx[4].pos = D3DXVECTOR3(-BOX_WIDTH, -BOX_HEIGHT, BOX_DEPTH);
-		pVtx[5].pos = D3DXVECTOR3(-BOX_WIDTH, -BOX_HEIGHT, BOX_DEPTH);
-		pVtx[6].pos = D3DXVECTOR3(BOX_WIDTH, BOX_HEIGHT, BOX_DEPTH);
-		pVtx[7].pos = D3DXVECTOR3(-BOX_WIDTH, BOX_HEIGHT, BOX_DEPTH);
-
-		pVtx[0].nor = D3DXVECTOR3(-1.0f, 1.0f, -1.0f);
-		pVtx[1].nor = D3DXVECTOR3(1.0f, 1.0f, -1.0f);
-		pVtx[2].nor = D3DXVECTOR3(-1.0f, -1.0f, -1.0f);
-		pVtx[3].nor = D3DXVECTOR3(1.0f, -1.0f, -1.0f);
-		pVtx[4].nor = D3DXVECTOR3(-1.0f, -1.0f, 1.0f);
-		pVtx[5].nor = D3DXVECTOR3(-1.0f, 1.0f, -1.0f);
-		pVtx[6].nor = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
-		pVtx[7].nor = D3DXVECTOR3(-1.0f, 1.0f, 1.0f);
-
-		pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[4].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[5].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[6].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[7].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
-		pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-		pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-		pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-		pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
-		pVtx[4].tex = D3DXVECTOR2(0.0f, 0.0f);
-		pVtx[5].tex = D3DXVECTOR2(1.0f, 0.0f);
-		pVtx[6].tex = D3DXVECTOR2(0.0f, 1.0f);
-		pVtx[7].tex = D3DXVECTOR2(1.0f, 1.0f);
-
-		g_pVtxBuffBox->Unlock();
+		m_pVtxBuffBox->Unlock();
 	}
 
-	if (FAILED(pDevice->CreateIndexBuffer(sizeof(WORD) * g_NumIndexBox,
-												D3DUSAGE_WRITEONLY,
-												D3DFMT_INDEX16,
-												D3DPOOL_MANAGED,
-												&g_pIdxBuffBox,
-												NULL)))
+	if (FAILED(pDevice->CreateIndexBuffer(sizeof(WORD) * m_NumVertexBox,D3DUSAGE_WRITEONLY,D3DFMT_INDEX16,D3DPOOL_MANAGED,&m_pIdxBuffBox,NULL)))
 	{
 		return E_FAIL;
 	}
@@ -488,16 +171,92 @@ HRESULT MakeVertexBox(LPDIRECT3DDEVICE9 pDevice)
 	{//インデックスバッファの中身を埋める
 		WORD *pIdx;
 
-		g_pIdxBuffBox->Lock(0, 0, (void**)&pIdx, 0);
+		m_pIdxBuffBox->Lock(0, 0, (void**)&pIdx, 0);
 
+		//前面
 		pIdx[0] = 0;
 		pIdx[1] = 1;
 		pIdx[2] = 2;
 		pIdx[3] = 1;
 		pIdx[4] = 3;
 		pIdx[5] = 2;
+		//上面
+		pIdx[6] = 7;
+		pIdx[7] = 6;
+		pIdx[8] = 0;
+		pIdx[9] = 6;
+		pIdx[10] = 1;
+		pIdx[11] = 0;
+		//裏面
+		pIdx[12] = 5;
+		pIdx[13] = 4;
+		pIdx[14] = 7;
+		pIdx[15] = 4;
+		pIdx[16] = 6;
+		pIdx[17] = 7;
+		//底面
+		pIdx[18] = 2;
+		pIdx[19] = 3;
+		pIdx[20] = 5;
+		pIdx[21] = 3;
+		pIdx[22] = 4;
+		pIdx[23] = 5;
+		//右面
+		pIdx[24] = 1;
+		pIdx[25] = 6;
+		pIdx[26] = 3;
+		pIdx[27] = 6;
+		pIdx[28] = 4;
+		pIdx[29] = 3;
+		//左面
+		pIdx[30] = 7;
+		pIdx[31] = 0;
+		pIdx[32] = 5;
+		pIdx[33] = 0;
+		pIdx[34] = 2;
+		pIdx[35] = 5;
 
-		g_pIdxBuffBox->Unlock();
+		m_pIdxBuffBox->Unlock();
 	}
 	return S_OK;
+}
+
+void Box::DrawPolygon(int i)
+{
+	D3DXMATRIX mtxRot, mtxTranslate;
+
+	switch (i)
+	{
+	case 0:
+		D3DXMatrixRotationYawPitchRoll(&m_mtxWorldBox, m_rot1Box.y, m_rot1Box.x, m_rot1Box.z);
+		break;
+	case 1:
+		D3DXMatrixTranslation(&mtxTranslate, 0.0f, -10.0f, 10.0f);
+		D3DXMatrixRotationYawPitchRoll(&mtxRot, m_rot1Box.y, m_rot1Box.x + 0.5f * D3DX_PI, m_rot1Box.z);
+		D3DXMatrixMultiply(&m_mtxWorldBox, &mtxRot, &mtxTranslate);
+		break;
+	case 2:
+		D3DXMatrixTranslation(&mtxTranslate, 0.0f, -20.0f, 0.0f);
+		D3DXMatrixRotationYawPitchRoll(&mtxRot, m_rot1Box.y, m_rot1Box.x + D3DX_PI, m_rot1Box.z);
+		D3DXMatrixMultiply(&m_mtxWorldBox, &mtxRot, &mtxTranslate);
+		break;
+	case 3:
+		D3DXMatrixTranslation(&mtxTranslate, 0.0f, -10.0f, -10.0f);
+		D3DXMatrixRotationYawPitchRoll(&mtxRot, m_rot1Box.y, m_rot1Box.x - 0.5f * D3DX_PI, m_rot1Box.z);
+		D3DXMatrixMultiply(&m_mtxWorldBox, &mtxRot, &mtxTranslate);
+		break;
+	case 4:
+		D3DXMatrixTranslation(&mtxTranslate, 10.0f, -10.0f, 0.0f);
+		D3DXMatrixRotationYawPitchRoll(&mtxRot, m_rot1Box.y, m_rot1Box.x, m_rot1Box.z - 0.5f * D3DX_PI);
+		D3DXMatrixMultiply(&m_mtxWorldBox, &mtxRot, &mtxTranslate);
+		break;
+	case 5:
+		D3DXMatrixTranslation(&mtxTranslate, -10.0f, -10.0f, 0.0f);
+		D3DXMatrixRotationYawPitchRoll(&mtxRot, m_rot1Box.y, m_rot1Box.x, m_rot1Box.z + 0.5f * D3DX_PI);
+		D3DXMatrixMultiply(&m_mtxWorldBox, &mtxRot, &mtxTranslate);
+		break;
+	default:
+		break;
+	}
+	return;
 }

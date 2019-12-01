@@ -143,10 +143,14 @@
     <ClInclude Include="Controller.h" />
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="field.h" />
+    <ClInclude Include="Grid.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="SceneBase.h" />
+    <ClInclude Include="SceneGame.h" />
+    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="texture.h" />
   </ItemGroup>
   <ItemGroup>
@@ -155,10 +159,13 @@
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="field.cpp" />
+    <ClCompile Include="Grid.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="SceneGame.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="texture.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

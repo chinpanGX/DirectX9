@@ -8,87 +8,59 @@
 #include <stdio.h>
 #include "debugproc.h"
 
-LPD3DXFONT	g_pD3DXFont = NULL;			// フォントへのポインタ
-char		g_aStrDebug[1024] = {"\0"};	// デバッグ情報
+LPD3DXFONT			DebugProc::m_pD3DXFont = NULL;			// フォントへのポインタ
+char				DebugProc::m_aStrDebug[1024] = { "\0" };	// デバッグ情報
+LPDIRECT3DDEVICE9	DebugProc::m_pDevice;
 
-
-//=============================================================================
-// デバッグ表示処理の初期化
-//=============================================================================
-HRESULT DebugProc_Initialize(void)
+//	初期化処理
+HRESULT DebugProc::Init()
 {
-	LPDIRECT3DDEVICE9 pDevice = GetD3DDevice();
+	m_pDevice = GetD3DDevice();
 	HRESULT hr;
 
 	// 情報表示用フォントを設定
-	hr = D3DXCreateFont(pDevice, 18, 0, 0, 0, FALSE, SHIFTJIS_CHARSET,
-					OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Terminal", &g_pD3DXFont);
+	hr = D3DXCreateFont(m_pDevice, 18, 0, 0, 0, FALSE, SHIFTJIS_CHARSET,
+		OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Terminal", &m_pD3DXFont);
 
 	// 情報クリア
-	memset(g_aStrDebug, 0, sizeof g_aStrDebug);
+	memset(m_aStrDebug, 0, sizeof m_aStrDebug);
 
 	return hr;
 }
 
-//=============================================================================
-// デバッグ表示処理の終了処理
-//=============================================================================
-void DebugProc_Finalize(void)
+//	終了処理
+void DebugProc::Uninit()
 {
-	if(g_pD3DXFont != NULL)
-	{// 情報表示用フォントの開放
-		g_pD3DXFont->Release();
-		g_pD3DXFont = NULL;
-	}
+	SAFE_RELEASE(m_pD3DXFont);
 }
 
-//=============================================================================
-// デバッグ表示処理の更新処理
-//=============================================================================
-void DebugProc_Update(void)
+//	描画処理
+void DebugProc::Draw()
 {
-}
-
-//=============================================================================
-// デバッグ表示処理の描画処理
-//=============================================================================
-void DebugProc_Draw(void)
-{
-	RECT rect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+	RECT rect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 
 	// 情報表示
-	g_pD3DXFont->DrawText(NULL, g_aStrDebug, -1, &rect, DT_LEFT, D3DCOLOR_ARGB(0xff, 0xff, 0xff, 0xff));
+	m_pD3DXFont->DrawText(NULL, m_aStrDebug, -1, &rect, DT_LEFT, D3DCOLOR_ARGB(0xff, 0xff, 0xff, 0xff));
 
 	// 情報クリア
-	memset(g_aStrDebug, 0, sizeof g_aStrDebug);
+	memset(m_aStrDebug, 0, sizeof m_aStrDebug);
 }
 
-//=============================================================================
-// デバッグ表示の登録
-//=============================================================================
-void DebugProc_Print(char *fmt, ...)
+//	表示登録処理
+void DebugProc::Print(char * fmt, ...)
 {
-#if 0
-	long *pParam;
-	static char aBuf[256];
-
-	pParam = (long*)&fmt;
-	sprintf(aBuf, fmt, pParam[1], pParam[2], pParam[3], pParam[4],
-									pParam[5], pParam[6], pParam[7], pParam[8],
-									pParam[9], pParam[10], pParam[11], pParam[12]);
-#else
 	va_list list;			// 可変引数を処理する為に使用する変数
 	char *pCur;
-	char aBuf[256]={"\0"};
+	char aBuf[256] = { "\0" };
 	char aWk[32];
 
 	// 可変引数にアクセスする前の初期処理
 	va_start(list, fmt);
 
 	pCur = fmt;
-	for( ; *pCur; ++pCur)
+	for (; *pCur; ++pCur)
 	{
-		if(*pCur != '%')
+		if (*pCur != '%')
 		{
 			sprintf_s(aWk, "%c", *pCur);
 		}
@@ -96,7 +68,7 @@ void DebugProc_Print(char *fmt, ...)
 		{
 			pCur++;
 
-			switch(*pCur)
+			switch (*pCur)
 			{
 			case 'd':
 				// 可変引数にアクセスしてその変数を取り出す処理
@@ -130,10 +102,8 @@ void DebugProc_Print(char *fmt, ...)
 	va_end(list);
 
 	// 連結
-	if((strlen(g_aStrDebug) + strlen(aBuf)) < ((sizeof g_aStrDebug) - 1))
+	if ((strlen(m_aStrDebug) + strlen(aBuf)) < ((sizeof m_aStrDebug) - 1))
 	{
-		strcat_s(g_aStrDebug, aBuf);
+		strcat_s(m_aStrDebug, aBuf);
 	}
-#endif
 }
-
