@@ -52,7 +52,10 @@ void Field::Draw()
 	m_pDevice = GetD3DDevice();
 	D3DXMATRIX mtxScl, mtxRot, mtxTranslate;
 
-	m_pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	//	レンダリングの設定　
+	//m_pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	m_pDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);	//フィルモード,ワイヤーフレームの設定
+	m_pDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD);
 
 	//	ワールドマトリックスの初期化
 	D3DXMatrixIdentity(&m_mtxWorld);
@@ -85,6 +88,7 @@ void Field::Draw()
 	m_pDevice->SetTexture(0, Texture::GetTexture(TEXTURE_INDEX_FIELD01));
 
 	//	ポリゴンの描画
+	//	引数（プリミティブタイプ、インデックスバッファの開始地点から最初のインデックスまでのオフセット、最小頂点番号、インデックスの数、配列の読み取り開始位置、三角ポリゴンの数）
 	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, 0, 0, VERTEX, 0, VERTEX - 4);
 
 	//	文字列の描画
@@ -155,28 +159,29 @@ HRESULT Field::MakeVertexField(LPDIRECT3DDEVICE9 m_pDevice)
 		return E_FAIL;
 	}
 
-	{//インデックスバッファの中身を埋める
+	{
+		//	インデックスバッファの中身を埋める
 		WORD *pIdx;
 
 		m_pIdxBuffer->Lock(0, 0, (void**)&pIdx, 0);
 
-		//for文をわかりやすくするための変数
+		//	for文をわかりやすくするための変数
 		int cnt1 = SQUARE_NUM;
 		int cnt2 = 0;
 		int DegenerateCnt = 1;	//	縮退ポリゴンのカウント
 
 		for (int i = 0; i < VERTEX; i++)
 		{
-			//縮退ポリゴンを書く時
+			//	縮退ポリゴンを書く時
 			if (i == ((SQUARE_LENGTH + 1) * 2 + 2) * DegenerateCnt - 2 && i != 0)
 			{
-				pIdx[i] = pIdx[i - 1];  //前の頂点に被せる
-				pIdx[i + 1] = cnt1;		//先の頂点
-				pIdx[i + 2] = cnt1;		//前の頂点に被せる
-				i += 2;					//二回点余分に代入したので+2
-				DegenerateCnt++;					//縮退ポリゴンの回数を増やす
+				pIdx[i] = pIdx[i - 1];  //	前の頂点に被せる
+				pIdx[i + 1] = cnt1;		//	先の頂点
+				pIdx[i + 2] = cnt1;		//	前の頂点に被せる
+				i += 2;					//	二回点余分に代入したので+2
+				DegenerateCnt++;		//	縮退ポリゴンの回数を増やす
 			}
-			//縮退ポリゴンを書かないとき(iが偶数か見る)
+			//	縮退ポリゴンを書かないとき(iが偶数か見る)
 			if (i % 2 == 0)
 			{
 				pIdx[i] = cnt1;
@@ -189,7 +194,6 @@ HRESULT Field::MakeVertexField(LPDIRECT3DDEVICE9 m_pDevice)
 			}
 		}
 
-		//ここでVRAMへ帰す
 		m_pVtxBuffer->Unlock();
 	}
 	return S_OK;

@@ -5,6 +5,7 @@
 
 ============================================*/
 
+#include "main.h"
 #include "SceneManager.h"
 
 //	スタティック変数
@@ -14,6 +15,7 @@ LPDIRECT3DDEVICE9	SceneManager::m_pDevice;	//	デバイス
 //	初期化処理
 void SceneManager::Init()
 {
+	m_pDevice = GetD3DDevice();
 	//	メモリの確保
 	m_Scene = new SceneGame;	//	SceneGameのインスタンス
 	m_Scene->Init();			//	Init()を呼び出す

@@ -13,8 +13,8 @@
 #define	VIEW_ANGLE		(D3DXToRadian(45.0f))							//	ビュー平面の視野角
 #define	VIEW_ASPECT		((float)SCREEN_WIDTH / (float)SCREEN_HEIGHT)	//	ビュー平面のアスペクト比
 #define	VIEW_NEAR_Z		(10.0f)											//	ビュー平面のNearZ値
-#define	VIEW_FAR_Z		(1000.0f)										//	ビュー平面のFarZ値
-#define VALUE_MOVE_CAMERA (1.0f)										//	カメラの移動量
+#define	VIEW_FAR_Z		(10000.0f)										//	ビュー平面のFarZ値
+#define VALUE_MOVE_CAMERA (2.5f)										//	カメラの移動量
 #define VALUE_ROTATE_CAMERA (D3DX_PI * 0.01f)							//	カメラの回転量
 #define VALUE_ADUJST_DINSTANCE   (2.0f)									//	視点と注視点間の移動量
 
@@ -48,14 +48,14 @@ void Camera::Uninit()
 //	カメラの更新処理
 void Camera::Update()
 {
-	if (KeyBoard::IsPress(DIK_A))
+	if (KeyBoard::IsPress(DIK_A) || GamePad::IsPress(0,LEFTSTICK_LEFT))
 	{
-		if (KeyBoard::IsPress(DIK_W))
+		if (KeyBoard::IsPress(DIK_W) || GamePad::IsPress(0,LEFTSTICK_UP))
 		{//左奥移動
 			g_camera.posV.x += sinf(-D3DX_PI * 0.75f - g_camera.rot.y) * VALUE_MOVE_CAMERA;
 			g_camera.posV.z -= cosf(-D3DX_PI * 0.75f - g_camera.rot.y) * VALUE_MOVE_CAMERA;
 		}
-		else if (KeyBoard::IsPress(DIK_S))
+		else if (KeyBoard::IsPress(DIK_S) || GamePad::IsPress(0,LEFTSTICK_DOWN))
 		{//左手前移動
 			g_camera.posV.x += sinf(-D3DX_PI * 0.25f - g_camera.rot.y) * VALUE_MOVE_CAMERA;
 			g_camera.posV.z -= cosf(-D3DX_PI * 0.25f - g_camera.rot.y) * VALUE_MOVE_CAMERA;
@@ -68,14 +68,15 @@ void Camera::Update()
 		g_camera.posR.x = g_camera.posV.x + sinf(g_camera.rot.y) * g_camera.fDistance;
 		g_camera.posR.z = g_camera.posV.z + cosf(g_camera.rot.y) * g_camera.fDistance;
 	}
-	else if (KeyBoard::IsPress(DIK_D))
+	else if (KeyBoard::IsPress(DIK_D) || GamePad::IsPress(0,LEFTSTICK_RIGHT))
+
 	{
-		if (KeyBoard::IsPress(DIK_W))
+		if (KeyBoard::IsPress(DIK_W) || GamePad::IsPress(0, LEFTSTICK_UP))
 		{//右奥移動
 			g_camera.posV.x += sinf(D3DX_PI * 0.75f - g_camera.rot.y) * VALUE_MOVE_CAMERA;
 			g_camera.posV.z -= cosf(D3DX_PI * 0.75f - g_camera.rot.y) * VALUE_MOVE_CAMERA;
 		}
-		else if (KeyBoard::IsPress(DIK_S))
+		else if (KeyBoard::IsPress(DIK_S) || GamePad::IsPress(0, LEFTSTICK_DOWN))
 		{//右手前移動
 			g_camera.posV.x += sinf(D3DX_PI * 0.25f - g_camera.rot.y) * VALUE_MOVE_CAMERA;
 			g_camera.posV.z -= cosf(D3DX_PI * 0.25f - g_camera.rot.y) * VALUE_MOVE_CAMERA;
@@ -88,7 +89,7 @@ void Camera::Update()
 		g_camera.posR.x = g_camera.posV.x + sinf(g_camera.rot.y) * g_camera.fDistance;
 		g_camera.posR.z = g_camera.posV.z + cosf(g_camera.rot.y) * g_camera.fDistance;
 	}
-	else if (KeyBoard::IsPress(DIK_W))
+	else if (KeyBoard::IsPress(DIK_W) || GamePad::IsPress(0, LEFTSTICK_UP))
 	{//前移動
 		g_camera.posV.x += sinf(-D3DX_PI * 1.0f - g_camera.rot.y) * VALUE_MOVE_CAMERA;
 		g_camera.posV.z -= cosf(-D3DX_PI * 1.0f - g_camera.rot.y) * VALUE_MOVE_CAMERA;
@@ -96,7 +97,7 @@ void Camera::Update()
 		g_camera.posR.x = g_camera.posV.x + sinf(g_camera.rot.y) * g_camera.fDistance;
 		g_camera.posR.z = g_camera.posV.z + cosf(g_camera.rot.y) * g_camera.fDistance;
 	}
-	else if (KeyBoard::IsPress(DIK_S))
+	else if (KeyBoard::IsPress(DIK_S) || GamePad::IsPress(0, LEFTSTICK_DOWN))
 	{//奥移動
 		g_camera.posV.x += sinf(-D3DX_PI * 0.0f - g_camera.rot.y) * VALUE_MOVE_CAMERA;
 		g_camera.posV.z -= cosf(-D3DX_PI * 0.0f - g_camera.rot.y) * VALUE_MOVE_CAMERA;
@@ -191,12 +192,13 @@ void Camera::Update()
 		fVecZ = g_camera.posV.z - g_camera.posR.z;
 		g_camera.fDistance = sqrtf(fVecX*fVecX + fVecZ * fVecZ);
 	}
+
 	DebugProc::Print((char*)"[カメラの視点:(%f:%f:%f)]\n", g_camera.posV.x, g_camera.posV.y, g_camera.posV.z);
 	DebugProc::Print((char*)"[カメラの注視点:(%f:%f:%f)]\n", g_camera.posV.x, g_camera.posV.y, g_camera.posV.z);
 	DebugProc::Print((char*)"[カメラの向き:(%f)]\n", g_camera.rot.y);
 	DebugProc::Print((char*)"[カメラの距離:(%f)]\n", g_camera.fDistance);
 	DebugProc::Print((char*)"\n");
-}
+}   
 
 void Camera::Set()
 {

@@ -3,11 +3,11 @@
 
 void Grid::Init()
 {
-	/*D3DDeviceを取得*/
+	//	D3DDeviceを取得
 	m_pDevice = GetD3DDevice();
-	/*頂点バッファ初期化*/
+	//	頂点バッファ初期化
 	m_pVtxBuffer = NULL;
-	/*頂点初期化*/
+	//	頂点初期化
 	pVtx[0].pos = D3DXVECTOR3(50.0f, -25.0f, 0.0f);
 	pVtx[1].pos = D3DXVECTOR3(-50.0f, -25.0f, 0.0f);
 

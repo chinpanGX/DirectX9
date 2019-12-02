@@ -10,7 +10,7 @@
 
 // マクロ定義
 #define	MODEL_CAR			"asset/MODEL/car000.x"	// 読み込むモデル名
-#define	VALUE_MOVE_MODEL	(0.50f)					// 移動速度
+#define	VALUE_MOVE_MODEL	(0.5f)					// 移動速度
 #define	RATE_MOVE_MODEL		(0.20f)					// 移動慣性係数
 #define	VALUE_ROTATE_MODEL	(D3DX_PI * 0.05f)		// 回転速度
 #define	RATE_ROTATE_MODEL	(0.20f)					// 回転慣性係数
@@ -59,16 +59,16 @@ void Player::Update()
 	// カメラの取得
 	pCamera = GetCamera();
 
-	if (KeyBoard::IsPress(DIK_A))
+	if (KeyBoard::IsPress(DIK_A) || GamePad::IsPress(0,LEFTSTICK_LEFT))
 	{
-		if (KeyBoard::IsPress(DIK_W))
+		if (KeyBoard::IsPress(DIK_W) || GamePad::IsPress(0,LEFTSTICK_UP))
 		{// 左奥移動
 			moveModel.x += sinf(-D3DX_PI * 0.75f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 			moveModel.z -= cosf(-D3DX_PI * 0.75f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 
 			rotDestModel.y = pCamera->rot.y + D3DX_PI * 0.75f;
 		}
-		else if (KeyBoard::IsPress(DIK_S))
+		else if (KeyBoard::IsPress(DIK_S) || GamePad::IsPress(0, LEFTSTICK_DOWN))
 		{// 左手前移動
 			moveModel.x += sinf(-D3DX_PI * 0.25f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 			moveModel.z -= cosf(-D3DX_PI * 0.25f - pCamera->rot.y) * VALUE_MOVE_MODEL;
@@ -83,16 +83,16 @@ void Player::Update()
 			rotDestModel.y = pCamera->rot.y + D3DX_PI * 0.50f;
 		}
 	}
-	else if (KeyBoard::IsPress(DIK_D))
+	else if (KeyBoard::IsPress(DIK_D) || GamePad::IsPress(0, LEFTSTICK_RIGHT))
 	{
-		if (KeyBoard::IsPress(DIK_W))
+		if (KeyBoard::IsPress(DIK_W) || GamePad::IsPress(0, LEFTSTICK_UP))
 		{// 右奥移動
 			moveModel.x += sinf(D3DX_PI * 0.75f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 			moveModel.z -= cosf(D3DX_PI * 0.75f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 
 			rotDestModel.y = pCamera->rot.y - D3DX_PI * 0.75f;
 		}
-		else if (KeyBoard::IsPress(DIK_S))
+		else if (KeyBoard::IsPress(DIK_S) || GamePad::IsPress(0, LEFTSTICK_DOWN))
 		{// 右手前移動
 			moveModel.x += sinf(D3DX_PI * 0.25f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 			moveModel.z -= cosf(D3DX_PI * 0.25f - pCamera->rot.y) * VALUE_MOVE_MODEL;
@@ -107,14 +107,14 @@ void Player::Update()
 			rotDestModel.y = pCamera->rot.y - D3DX_PI * 0.50f;
 		}
 	}
-	else if (KeyBoard::IsPress(DIK_W))
+	else if (KeyBoard::IsPress(DIK_W) || GamePad::IsPress(0, LEFTSTICK_UP))
 	{// 前移動
 		moveModel.x += sinf(D3DX_PI * 1.0f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 		moveModel.z -= cosf(D3DX_PI * 1.0f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 
 		rotDestModel.y = pCamera->rot.y + D3DX_PI * 1.0f;
 	}
-	else if (KeyBoard::IsPress(DIK_S))
+	else if (KeyBoard::IsPress(DIK_S) || GamePad::IsPress(0, LEFTSTICK_DOWN))
 	{// 後移動
 		moveModel.x += sinf(D3DX_PI * 0.0f - pCamera->rot.y) * VALUE_MOVE_MODEL;
 		moveModel.z -= cosf(D3DX_PI * 0.0f - pCamera->rot.y) * VALUE_MOVE_MODEL;
@@ -122,7 +122,7 @@ void Player::Update()
 		rotDestModel.y = pCamera->rot.y + D3DX_PI * 0.0f;
 	}
 
-	if (KeyBoard::IsPress(DIK_Q))
+	if (KeyBoard::IsPress(DIK_Q) || GamePad::IsPress(0,PS4RIGHTSTICK_LEFT))
 	{// 左回転
 		rotDestModel.y -= VALUE_ROTATE_MODEL;
 		if (rotDestModel.y < -D3DX_PI)
@@ -130,7 +130,7 @@ void Player::Update()
 			rotDestModel.y += D3DX_PI * 2.0f;
 		}
 	}
-	if (KeyBoard::IsPress(DIK_E))
+	if (KeyBoard::IsPress(DIK_E) || GamePad::IsPress(0,PS4RIGHTSTICK_RIGHT))
 	{// 右回転
 		rotDestModel.y += VALUE_ROTATE_MODEL;
 		if (rotDestModel.y > D3DX_PI)
