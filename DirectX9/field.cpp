@@ -52,9 +52,9 @@ void Field::Draw()
 	m_pDevice = GetD3DDevice();
 	D3DXMATRIX mtxScl, mtxRot, mtxTranslate;
 
-	//	レンダリングの設定　
-	//m_pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-	m_pDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);	//フィルモード,ワイヤーフレームの設定
+	//	レンダリングステートの設定　
+	m_pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	//m_pDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);	//フィルモード,ワイヤーフレームの設定
 	m_pDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD);
 
 	//	ワールドマトリックスの初期化

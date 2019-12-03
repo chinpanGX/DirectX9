@@ -15,13 +15,16 @@
 #include "texture.h"
 #include "box.h"
 #include "Grid.h"
+#include "billboard.h"
 
 class SceneGame : public SceneBase
 {
 private:
-	Camera	m_Camera;	//	Camera型インスタンス
-	Player	m_Player;	//	Player型インスタンス
-	Field	m_Field;	//	Field型インスタンス
+	Camera		m_Camera;
+	Player		m_Player;
+	Field		m_Field;
+	BillBoard	m_BB;
+
 public:
 	void Init();		//	初期化処理
 	void Uninit();		//	終了処理

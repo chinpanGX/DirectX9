@@ -5,8 +5,8 @@
 
 // マクロ定義
 #define	CAM_POS_V_X		(0.0f)											//	カメラの視点初期位置(X座標)
-#define	CAM_POS_V_Y		(100.0f)										//	カメラの視点初期位置(Y座標)
-#define	CAM_POS_V_Z		(-500.0f)										//	カメラの視点初期位置(Z座標)
+#define	CAM_POS_V_Y		(200.0f)										//	カメラの視点初期位置(Y座標)
+#define	CAM_POS_V_Z		(-300.0f)										//	カメラの視点初期位置(Z座標)
 #define	CAM_POS_R_X		(0.0f)											//	カメラの注視点初期位置(X座標)
 #define	CAM_POS_R_Y		(0.0f)											//	カメラの注視点初期位置(Y座標)
 #define	CAM_POS_R_Z		(0.0f)											//	カメラの注視点初期位置(Z座標)
@@ -48,6 +48,7 @@ void Camera::Uninit()
 //	カメラの更新処理
 void Camera::Update()
 {
+
 	if (KeyBoard::IsPress(DIK_A) || GamePad::IsPress(0,LEFTSTICK_LEFT))
 	{
 		if (KeyBoard::IsPress(DIK_W) || GamePad::IsPress(0,LEFTSTICK_UP))
@@ -105,6 +106,7 @@ void Camera::Update()
 		g_camera.posR.x = g_camera.posV.x + sinf(g_camera.rot.y) * g_camera.fDistance;
 		g_camera.posR.z = g_camera.posV.z + cosf(g_camera.rot.y) * g_camera.fDistance;
 	}
+#if 0
 	if (KeyBoard::IsPress(DIK_Z))
 	{//視点旋回「左」
 		g_camera.rot.y += VALUE_ROTATE_CAMERA;
@@ -125,6 +127,7 @@ void Camera::Update()
 		g_camera.posR.x = g_camera.posV.x + sinf(g_camera.rot.y) * g_camera.fDistance;
 		g_camera.posR.z = g_camera.posV.z + cosf(g_camera.rot.y) * g_camera.fDistance;
 	}
+#endif
 	if (KeyBoard::IsPress(DIK_Y))
 	{//視点移動「上」
 		g_camera.posV.y += VALUE_MOVE_CAMERA;
@@ -133,6 +136,7 @@ void Camera::Update()
 	{//視点移動「下」
 		g_camera.posV.y -= VALUE_MOVE_CAMERA;
 	}
+#if 0
 	if (KeyBoard::IsPress(DIK_Q))
 	{//注視点旋回「左」
 		g_camera.rot.y += VALUE_ROTATE_CAMERA;
@@ -153,6 +157,7 @@ void Camera::Update()
 		g_camera.posR.x = g_camera.posV.x + sinf(g_camera.rot.y) * g_camera.fDistance;
 		g_camera.posR.z = g_camera.posV.z + cosf(g_camera.rot.y) * g_camera.fDistance;
 	}
+#endif
 	if (KeyBoard::IsPress(DIK_T))
 	{//注視点移動「上」
 		g_camera.posV.y += VALUE_MOVE_CAMERA;
@@ -181,7 +186,8 @@ void Camera::Update()
 		g_camera.posV.x = g_camera.posR.x - sinf(g_camera.rot.y) * g_camera.fDistance;
 		g_camera.posV.z = g_camera.posR.z - cosf(g_camera.rot.y) * g_camera.fDistance;
 	}
-	if (KeyBoard::IsTrigger(DIK_SPACE))
+
+	if (KeyBoard::IsTrigger(DIK_RETURN))
 	{//リセット
 		g_camera.posV = D3DXVECTOR3(CAM_POS_V_X, CAM_POS_V_Y, CAM_POS_V_Z);
 		g_camera.posR = D3DXVECTOR3(CAM_POS_R_X, CAM_POS_R_Z, CAM_POS_R_Z);
@@ -193,6 +199,7 @@ void Camera::Update()
 		g_camera.fDistance = sqrtf(fVecX*fVecX + fVecZ * fVecZ);
 	}
 
+	//	文字列の描画
 	DebugProc::Print((char*)"[カメラの視点:(%f:%f:%f)]\n", g_camera.posV.x, g_camera.posV.y, g_camera.posV.z);
 	DebugProc::Print((char*)"[カメラの注視点:(%f:%f:%f)]\n", g_camera.posV.x, g_camera.posV.y, g_camera.posV.z);
 	DebugProc::Print((char*)"[カメラの向き:(%f)]\n", g_camera.rot.y);

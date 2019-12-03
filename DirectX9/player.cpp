@@ -11,9 +11,9 @@
 // マクロ定義
 #define	MODEL_CAR			"asset/MODEL/car000.x"	// 読み込むモデル名
 #define	VALUE_MOVE_MODEL	(0.5f)					// 移動速度
-#define	RATE_MOVE_MODEL		(0.20f)					// 移動慣性係数
+#define	RATE_MOVE_MODEL		(0.2f)					// 移動慣性係数
 #define	VALUE_ROTATE_MODEL	(D3DX_PI * 0.05f)		// 回転速度
-#define	RATE_ROTATE_MODEL	(0.20f)					// 回転慣性係数
+#define	RATE_ROTATE_MODEL	(0.2f)					// 回転慣性係数
 
 //	スタティック変数
 LPDIRECT3DTEXTURE9	Player::m_pTextureModel = NULL;		// テクスチャへのポインタ
@@ -216,8 +216,10 @@ void Player::Draw()
 	D3DXMatrixTranslation(&mtxTranslate, posModel.x, moveModel.y, posModel.z);
 	D3DXMatrixMultiply(&mtxWorldModel, &mtxWorldModel, &mtxTranslate);
 
+
 	//ワールドマトリックスの設定
 	m_pDevice->SetTransform(D3DTS_WORLD, &mtxWorldModel);
+
 	//現在のマテリアルを取得
 	m_pDevice->GetMaterial(&matDef);
 
