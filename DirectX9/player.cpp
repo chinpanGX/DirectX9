@@ -7,6 +7,7 @@
 #include "Player.h"
 #include "camera.h"
 #include "Controller.h"
+#include "shadow.h"
 
 // マクロ定義
 #define	MODEL_CAR			"asset/MODEL/car000.x"	// 読み込むモデル名
@@ -20,7 +21,7 @@ LPDIRECT3DTEXTURE9	Player::m_pTextureModel = NULL;		// テクスチャへのポインタ
 LPD3DXMESH			Player::m_pMeshModel	= NULL;		// メッシュ情報へのポインタ
 LPD3DXBUFFER		Player::m_pBuffMatModel	= NULL;		// マテリアル情報へのポインタ
 DWORD				Player::m_nNumMatModel;				// マテリアル情報の総数
-LPDIRECT3DDEVICE9	Player::m_pDevice;
+
 
 HRESULT Player::Init(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 {
@@ -44,11 +45,19 @@ HRESULT Player::Init(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 	{
 		return E_FAIL;
 	}
+
+	//	影の作成
+	m_IdxShadow = m_shadow.Create(posModel, 0.1f, 0.1f);
+
 	return S_OK;
 }
 
 void Player::Uninit()
 {
+	m_shadow.Release(m_IdxShadow);
+	SAFE_RELEASE(m_pTextureModel);
+	SAFE_RELEASE(m_pBuffMatModel);
+	SAFE_RELEASE(m_pMeshModel);
 }
 
 void Player::Update()
@@ -196,6 +205,11 @@ void Player::Update()
 		rotModel = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		rotDestModel = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	}
+
+	D3DXVECTOR3 pos = posModel;
+	pos.y = 0.0f;	//	影は座標を固定しておく->影はジャンプしない
+	m_shadow.SetPosition(m_IdxShadow, pos);
+
 }
 
 void Player::Draw()
@@ -238,4 +252,9 @@ void Player::Draw()
 	}
 	//マテリアルをデフォルトに戻す
 	m_pDevice->SetMaterial(&matDef);
+}
+
+D3DXVECTOR3 Player::GetPos()
+{
+	return posModel;
 }

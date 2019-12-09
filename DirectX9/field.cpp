@@ -23,10 +23,12 @@ D3DXVECTOR3					Field::m_posField;		//	地面の位置
 D3DXVECTOR3					Field::m_rotField;		//	地面の向き(回転)
 D3DXVECTOR3					Field::m_sclField;		//	地面の大きさ(スケール)
 
+
 //	初期化処理
 HRESULT Field::Init()
 {
 	m_pDevice = GetD3DDevice();
+	m_texture.Load("asset/texture/field002.jpg",0);
 	
 	// 位置・回転・スケールの初期設定
 	m_posField = D3DXVECTOR3(0.0f, 0.0f, 100.0f);
@@ -42,6 +44,7 @@ HRESULT Field::Init()
 //	終了処理
 void Field::Uninit()
 {
+	m_texture.Unload(0);
 	SAFE_RELEASE(m_pVtxBuffer);
 	SAFE_RELEASE(m_pIdxBuffer);
 }
@@ -85,7 +88,7 @@ void Field::Draw()
 	m_pDevice->SetFVF(FVF_VERTEX3D);
 
 	//	テクスチャの設定
-	m_pDevice->SetTexture(0, Texture::GetTexture(TEXTURE_INDEX_FIELD01));
+	m_pDevice->SetTexture(0, m_texture.Set(0));
 
 	//	ポリゴンの描画
 	//	引数（プリミティブタイプ、インデックスバッファの開始地点から最初のインデックスまでのオフセット、最小頂点番号、インデックスの数、配列の読み取り開始位置、三角ポリゴンの数）

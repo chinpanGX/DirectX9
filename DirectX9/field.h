@@ -7,6 +7,7 @@
 
 #pragma once
 #include "main.h"
+#include "texture.h"
 
 //	Fieldクラス
 class Field
@@ -17,8 +18,9 @@ private:
 	static	D3DXVECTOR3				m_posField;		//	地面の位置
 	static	D3DXVECTOR3				m_rotField;		//	地面の向き(回転)
 	static	D3DXVECTOR3				m_sclField;		//	地面の大きさ(スケール)
-	static LPDIRECT3DDEVICE9		m_pDevice;		//	デバイス
+	static  LPDIRECT3DDEVICE9		m_pDevice;		//	デバイス
 	D3DXMATRIX						m_mtxWorld;		//	ワールドマトリックス
+	Texture							m_texture;
 public:
 	HRESULT	Init();											//	初期化処理
 	void	Uninit();										//	終了処理

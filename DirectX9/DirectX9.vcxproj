@@ -140,6 +140,7 @@
   <ItemGroup>
     <ClInclude Include="billboard.h" />
     <ClInclude Include="box.h" />
+    <ClInclude Include="BulletManager.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="debugproc.h" />
@@ -152,11 +153,13 @@
     <ClInclude Include="SceneBase.h" />
     <ClInclude Include="SceneGame.h" />
     <ClInclude Include="SceneManager.h" />
+    <ClInclude Include="shadow.h" />
     <ClInclude Include="texture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="billboard.cpp" />
     <ClCompile Include="box.cpp" />
+    <ClCompile Include="BulletManager.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="debugproc.cpp" />
@@ -168,6 +171,7 @@
     <ClCompile Include="player.cpp" />
     <ClCompile Include="SceneGame.cpp" />
     <ClCompile Include="SceneManager.cpp" />
+    <ClCompile Include="shadow.cpp" />
     <ClCompile Include="texture.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

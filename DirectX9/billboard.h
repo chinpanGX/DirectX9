@@ -6,12 +6,13 @@
 #pragma once
 
 #include "main.h"
+#include "texture.h"
+#include "shadow.h"
 
 class BillBoard
 {
 private:
-	static LPDIRECT3DTEXTURE9		m_pTextureBillboard;	// テクスチャへのポインタ
-	static LPDIRECT3DVERTEXBUFFER9	m_pVtxBuffBillboard;	// 頂点バッファへのポインタ
+	static LPDIRECT3DVERTEXBUFFER9	m_pVtxBuffBillboard;		// 頂点バッファへのポインタ
 	static D3DXMATRIX				m_mtxWorldBillboard;		// ワールドマトリックス
 	static D3DXVECTOR3				m_posBillboard;				// 位置
 	static D3DXVECTOR3				m_sclBillboard;				// スケール
@@ -19,7 +20,9 @@ private:
 	static int						m_nIdxShadowBillboard;		// 影ID
 	static bool						m_bEnableGravity;			// 重力を有効にするかどうか
 	static LPDIRECT3DDEVICE9		m_pDevice;
-
+	Texture							m_texture;
+	Shadow							m_shadow;
+	int								m_IdxShadow;				//	影の配列番号を格納
 public:
 	HRESULT Init();
 	void Uninit();

@@ -17,10 +17,9 @@ private:
 	D3DXVECTOR3 vecU;			// 上方向ベクトル
 	float fDistance;
 	static D3DXMATRIX mtxProjection;	// プロジェクションマトリックス
-	static D3DXMATRIX mtxView;			// ビューマトリックス
 	static LPDIRECT3DDEVICE9 pDevice;
-
 public:
+	static D3DXMATRIX mtxView;			// ビューマトリックス
 	D3DXVECTOR3 rot;
 public:
 	void Init();	//	初期化処理

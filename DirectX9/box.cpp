@@ -35,6 +35,7 @@ LPDIRECT3DDEVICE9		Box::m_pDevice;
 HRESULT Box::Init()
 {
 	m_pDevice = GetD3DDevice();
+	m_texture.Load("asset/texture/field001.jpg",2);
 
 	pVtx[0].pos = D3DXVECTOR3(-100, 0.0f, 100);
 	pVtx[1].pos = D3DXVECTOR3(100, 0.0f, 100);
@@ -73,6 +74,7 @@ HRESULT Box::Init()
 //	終了処理
 void Box::Uninit()
 {
+	m_texture.Unload(2);
 	SAFE_RELEASE(m_pIdxBuffBox);
 	SAFE_RELEASE(m_pVtxBuffBox);
 }
@@ -139,7 +141,7 @@ void Box::Draw()
 		m_pDevice->SetStreamSource(0, m_pVtxBuffBox, 0, sizeof(VERTEX_3D));					//頂点バッファをデバイスのデータストリームにバインド
 		m_pDevice->SetIndices(m_pIdxBuffBox);												//インデックスバッファのセット
 		m_pDevice->SetFVF(FVF_VERTEX3D);													//頂点フォーマットに設定
-		m_pDevice->SetTexture(0, Texture::GetTexture(TEXTURE_INDEX_FIELD01));				//テクスチャの設定
+		m_pDevice->SetTexture(0, m_texture.Set(2));											//テクスチャの設定
 		m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, 0, 0, m_NumVertexBox, 0, 12);	//ポリゴンの描画
 	}
 }

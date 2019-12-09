@@ -6,30 +6,15 @@
 =================================================*/
 
 #pragma once
-#include <d3d9.h>
-
-//	マクロ定義
-#define TEXTURE_FILENAME_MAX (64)	//	テクスチャファイル名の長さ
-
-//	TextureIndex列挙型（テクスチャのラベル名）
-enum TextureIndex
-{
-    TEXTURE_INDEX_FIELD01,
-	TEXTURE_INDEX_FIELD02,
-	TEXTURE_INDEX_FIELD03,
-
-    TEXTURE_INDEX_MAX
-};
+#include "main.h"
 
 //	Textureクラス
 class  Texture
 {
 private:
-	static LPDIRECT3DDEVICE9	m_pDevice;
+	LPDIRECT3DTEXTURE9	m_pTexture[5];	//	テクスチャを格納する変数
 public:
-	static int Load();
-	static void Unload();
-	static LPDIRECT3DTEXTURE9 GetTexture(TextureIndex index);
-	static int GetWidth(TextureIndex index);
-	static int GetHeight(TextureIndex index);
+	void Load(const char *filename,int i);		//	テクスチャのロード		（テクスチャ名、格納する配列番号）
+	void Unload(int i);							//	テクスチャのアンロード	（テクスチャ名、アンロードする配列番号）
+	LPDIRECT3DTEXTURE9 Set(int i);				//	テスクチャのセット	（セットする配列番号）
 };

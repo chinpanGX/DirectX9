@@ -9,8 +9,8 @@
 
 class SceneBase
 {
-	//	純粋仮想関数指定
 public:
+	//	純粋仮想関数指定
 	virtual void Init() = 0;	//	初期化処理
 	virtual void Uninit() = 0;	//	終了処理
 	virtual void Update() = 0;	//	更新処理

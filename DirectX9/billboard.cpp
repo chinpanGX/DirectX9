@@ -1,17 +1,16 @@
-//=============================================================================
-//
-// ビルボード処理 [billboard.cpp]
-//
-//=============================================================================
+/*=============================================================================
+
+	ビルボード処理 [billboard.cpp]
+	Author : 出合翔太
+
+==============================================================================*/
+
 #include "billboard.h"
 #include "Controller.h"
 #include "camera.h"
 #include "debugproc.h"
 
-//*****************************************************************************
 // マクロ定義
-//*****************************************************************************
-#define	TEXTURE_BILLBOARD		"asset/texture/bullet000.png"	// 読み込むテクスチャファイル名
 #define	BILLBOARD_SIZE_X		(20.0f)							// ビルボードの幅
 #define	BILLBOARD_SIZE_Y		(20.0f)							// ビルボードの高さ
 #define	VALUE_MOVE_BILLBOARD	(0.30f)							// 移動速度
@@ -20,9 +19,8 @@
 #define	RATE_REGIST				(0.075f)						// 抵抗係数
 #define	RATE_REFRECT			(-0.90f)						// 反射係数
 
-//*****************************************************************************
-// グローバル変数
-LPDIRECT3DTEXTURE9		BillBoard::m_pTextureBillboard = NULL;	// テクスチャへのポインタ
+
+// スタティック変数
 LPDIRECT3DVERTEXBUFFER9	BillBoard::m_pVtxBuffBillboard = NULL;	// 頂点バッファへのポインタ
 D3DXMATRIX				BillBoard::m_mtxWorldBillboard;			// ワールドマトリックス
 D3DXVECTOR3				BillBoard::m_posBillboard;				// 位置
@@ -32,9 +30,8 @@ int						BillBoard::m_nIdxShadowBillboard;		// 影ID
 bool					BillBoard::m_bEnableGravity;			// 重力を有効にするかどうか
 LPDIRECT3DDEVICE9		BillBoard::m_pDevice;
 
-//=============================================================================
+
 // 初期化処理
-//=============================================================================
 HRESULT BillBoard::Init()
 {
 	m_pDevice = GetD3DDevice();
@@ -43,12 +40,15 @@ HRESULT BillBoard::Init()
 	MakeVertexBillboard(m_pDevice);
 
 	// テクスチャの読み込み	引数(デバイスのポインタ、ファイル名、読み込むメモリポインタ)
-	D3DXCreateTextureFromFile(m_pDevice,"asset/texture/bullet000.png",&m_pTextureBillboard);	
+	//D3DXCreateTextureFromFile(m_pDevice,"asset/texture/bullet000.png",&m_pTextureBillboard);	
+	m_texture.Load("asset/texture/bullet000.png",1);
 
 	//	位置、スケール、移動量の初期置
 	m_posBillboard = D3DXVECTOR3(0.0f, 18.0f, 0.0f);
 	m_sclBillboard = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
 	m_moveBillboard = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	
+	m_IdxShadow = m_shadow.Create(m_posBillboard, 0.1f, 0.1f);
 
 	//	重力のフラグ
 	m_bEnableGravity = false;
@@ -56,18 +56,16 @@ HRESULT BillBoard::Init()
 	return S_OK;
 }
 
-//=============================================================================
 // 終了処理
-//=============================================================================
 void BillBoard::Uninit()
 {
-	SAFE_RELEASE(m_pTextureBillboard);	//	テクスチャの解放
+	m_texture.Unload(1);
+	//SAFE_RELEASE(m_pTextureBillboard);	//	テクスチャの解放
 	SAFE_RELEASE(m_pVtxBuffBillboard);	//	頂点バッファの解放
 }
 
-//=============================================================================
+
 // 更新処理
-//=============================================================================
 void BillBoard::Update()
 {
 	Camera *pCamera;
@@ -106,6 +104,10 @@ void BillBoard::Update()
 		}
 	}
 
+	D3DXVECTOR3 pos = m_posBillboard;
+	pos.y = 0.0f;	//	影は座標を固定しておく->影はジャンプしない
+	m_shadow.SetPosition(m_IdxShadow, pos);
+
 	DebugProc::Print((char*)"*** ボール操作 ***\n");
 	DebugProc::Print((char*)"[ボールの位置  ：(%f : %f : %f)]\n", m_posBillboard.x, m_posBillboard.y, m_posBillboard.z);
 	DebugProc::Print((char*)"[ボールの移動量：(%f : %f : %f)]\n", m_moveBillboard.x, m_moveBillboard.y, m_moveBillboard.z);
@@ -128,9 +130,7 @@ void BillBoard::Update()
 	}
 }
 
-//=============================================================================
 // 描画処理
-//=============================================================================
 void BillBoard::Draw()
 {
 	m_pDevice = GetD3DDevice();
@@ -151,7 +151,7 @@ void BillBoard::Draw()
 	m_pDevice->GetTransform(D3DTS_VIEW, &mtxView);
 
 	//	ポリゴンを正面に向ける
-#if 1
+#if 0
 	//	逆行列を求める（第３引数の逆行列を求める）
 	D3DXMatrixInverse(&m_mtxWorldBillboard, NULL, &mtxView);
 
@@ -161,6 +161,7 @@ void BillBoard::Draw()
 	m_mtxWorldBillboard._43 = 0.0f;
 
 #else
+	//	転置行列
 	m_mtxWorldBillboard._11 = mtxView._11;
 	m_mtxWorldBillboard._12 = mtxView._21;
 	m_mtxWorldBillboard._13 = mtxView._31;
@@ -173,7 +174,6 @@ void BillBoard::Draw()
 #endif
 
 	//	スケールを反映
-
 	D3DXMatrixScaling(&mtxScale, m_sclBillboard.x, m_sclBillboard.y, m_sclBillboard.z);
 	D3DXMatrixMultiply(&m_mtxWorldBillboard, &m_mtxWorldBillboard, &mtxScale);
 
@@ -192,7 +192,7 @@ void BillBoard::Draw()
 	m_pDevice->SetFVF(FVF_VERTEX3D);
 
 	//	テクスチャの設定
-	m_pDevice->SetTexture(0,m_pTextureBillboard);
+	m_pDevice->SetTexture(0,m_texture.Set(1));
 
 	//	ポリゴンの描画
 	//	引数（プリミティブタイプ、配列の読み取り開始位置、三角ポリゴンの数）
@@ -200,14 +200,12 @@ void BillBoard::Draw()
 
 	//	ラインティングを有効にする
 	m_pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
-
+	
 	//	αテストを無効にする
 	m_pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
 }
 
-//=============================================================================
 // 頂点情報の作成
-//=============================================================================
 HRESULT BillBoard::MakeVertexBillboard(LPDIRECT3DDEVICE9 m_pDevice)
 {
 	// オブジェクトの頂点バッファを生成
@@ -258,9 +256,7 @@ HRESULT BillBoard::MakeVertexBillboard(LPDIRECT3DDEVICE9 m_pDevice)
 	return S_OK;
 }
 
-//=============================================================================
 // 頂点座標の設定
-//=============================================================================
 void BillBoard::SetVertexBillboard(float fSizeX, float fSizeY)
 {
 	{//頂点バッファの中身を埋める

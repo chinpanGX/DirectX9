@@ -1,7 +1,7 @@
 
 #pragma once
 #include "main.h"
-
+#include "texture.h"
 
 class Box
 {
@@ -15,6 +15,7 @@ private:
 	static D3DXVECTOR3				m_sclBox;			//	地面の大きさ(スケール)
 	static LPDIRECT3DDEVICE9		m_pDevice;
 	D3DXMATRIX						m_mtxWorldBox;		//	ワールドマトリックス
+	Texture							m_texture;
 public:
 	HRESULT Init();
 	void	Uninit();

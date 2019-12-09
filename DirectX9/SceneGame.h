@@ -1,6 +1,6 @@
 /*===================================================
 
-	[Scene.h]
+	[SceneGame.h]
 	Author : o‡ãÄ‘¾
 
 ===================================================*/
@@ -16,15 +16,18 @@
 #include "box.h"
 #include "Grid.h"
 #include "billboard.h"
+#include "shadow.h"
+#include "BulletManager.h"
 
 class SceneGame : public SceneBase
 {
 private:
-	Camera		m_Camera;
-	Player		m_Player;
-	Field		m_Field;
-	BillBoard	m_BB;
-
+	Camera			m_Camera;
+	Player			m_Player;
+	Field			m_Field;
+	BillBoard		m_BB;
+	Shadow			m_shadow;
+	BulletManager	m_bullet;
 public:
 	void Init();		//	‰Šú‰»ˆ—
 	void Uninit();		//	I—¹ˆ—
