@@ -47,7 +47,7 @@ HRESULT Player::Init(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 	}
 
 	//	‰e‚Ìì¬
-	m_IdxShadow = m_shadow.Create(posModel, 0.1f, 0.1f);
+	m_IdxShadow = m_shadow.Create(posModel, D3DXVECTOR3(1.0f,1.0f,1.0f));
 
 	return S_OK;
 }
@@ -209,7 +209,6 @@ void Player::Update()
 	D3DXVECTOR3 pos = posModel;
 	pos.y = 0.0f;	//	‰e‚ÍÀ•W‚ðŒÅ’è‚µ‚Ä‚¨‚­->‰e‚ÍƒWƒƒƒ“ƒv‚µ‚È‚¢
 	m_shadow.SetPosition(m_IdxShadow, pos);
-
 }
 
 void Player::Draw()

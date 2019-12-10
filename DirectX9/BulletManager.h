@@ -44,7 +44,7 @@ private:
 	float							m_fHeightBase = 10.0f;	//	基準の高さ
 	float							m_roty = 0.0f;			//	移動方向
 	float							m_spd = 0.0f;			//	移動スピード
-	int								m_nIdxShadow;			//	影ID
+	int								m_IdxShadow;			//	影ID
 	Bullet							m_aBullet[MAX_BULLET];	//	BulletWork
 	Texture							m_texture;
 	Camera							*m_camera;

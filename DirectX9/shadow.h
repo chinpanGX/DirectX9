@@ -17,6 +17,7 @@ private:
 	D3DXMATRIX						m_mtxWorld;			// ワールドマトリックス
 	D3DXVECTOR3						m_pos;				// 位置
 	D3DXVECTOR3						m_rot;				// 回転
+	D3DXVECTOR3						m_scl;				// 拡大縮小
 	bool							m_bUse;				// 使用しているかどうか
 	Texture							m_texture;
 public:
@@ -24,12 +25,12 @@ public:
 	void	Uninit();
 	void	Update();
 	void	Draw();
-	int		Create(D3DXVECTOR3 pos, float fSizeX, float fSizeZ);
+	int		Create(D3DXVECTOR3 pos, D3DXVECTOR3 scl);
 	void	Release(int nIdxShadow);
 	void	SetPosition(int nIdxShadow, D3DXVECTOR3 pos);
 	void	SetColor(int nIdxShadow, D3DXCOLOR col);
+	void	SetScale(int nIdxShadow, D3DXVECTOR3 scl);
 private:
-	void	SetVertex(int nIdxShadow, float fSizeX, float fSizeZ);
 	HRESULT MakeVertexShadow(LPDIRECT3DDEVICE9 pDevice);
 };
 

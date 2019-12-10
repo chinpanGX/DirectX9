@@ -11,13 +11,15 @@
 #include "debugproc.h"
 
 // マクロ定義
-#define	BILLBOARD_SIZE_X		(20.0f)							// ビルボードの幅
-#define	BILLBOARD_SIZE_Y		(20.0f)							// ビルボードの高さ
-#define	VALUE_MOVE_BILLBOARD	(0.30f)							// 移動速度
-#define	VALUE_JUMP				(10.0f)							// ジャンプ力
-#define	VALUE_GRAVITY			(0.45f)							// 重力
-#define	RATE_REGIST				(0.075f)						// 抵抗係数
-#define	RATE_REFRECT			(-0.90f)						// 反射係数
+#define	BILLBOARD_SIZE_X		(20.0f)		// ビルボードの幅
+#define	BILLBOARD_SIZE_Y		(20.0f)		// ビルボードの高さ
+#define	VALUE_MOVE_BILLBOARD	(0.30f)		// 移動速度
+#define	VALUE_JUMP				(10.0f)		// ジャンプ力
+#define	VALUE_GRAVITY			(0.45f)		// 重力
+#define	RATE_REGIST				(0.075f)	// 抵抗係数
+#define	RATE_REFRECT			(-0.90f)	// 反射係数
+#define	BILL_NUM_POY			(2)			//	ポリゴン
+#define	BILL_NUM_VER			(4)			//	頂点
 
 
 // スタティック変数
@@ -48,7 +50,7 @@ HRESULT BillBoard::Init()
 	m_sclBillboard = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
 	m_moveBillboard = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	
-	m_IdxShadow = m_shadow.Create(m_posBillboard, 0.1f, 0.1f);
+	//m_IdxShadow = m_shadow.Create(m_posBillboard, m_sclBillboard);
 
 	//	重力のフラグ
 	m_bEnableGravity = false;
@@ -196,7 +198,7 @@ void BillBoard::Draw()
 
 	//	ポリゴンの描画
 	//	引数（プリミティブタイプ、配列の読み取り開始位置、三角ポリゴンの数）
-	m_pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0,4);
+	m_pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0,BILL_NUM_POY);
 
 	//	ラインティングを有効にする
 	m_pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
@@ -209,12 +211,12 @@ void BillBoard::Draw()
 HRESULT BillBoard::MakeVertexBillboard(LPDIRECT3DDEVICE9 m_pDevice)
 {
 	// オブジェクトの頂点バッファを生成
-    if(FAILED(m_pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * 4,	// 頂点データ用に確保するバッファサイズ(バイト単位)
-												D3DUSAGE_WRITEONLY,			// 頂点バッファの使用法　
-												FVF_VERTEX3D,				// 使用する頂点フォーマット
-												D3DPOOL_MANAGED,			// リソースのバッファを保持するメモリクラスを指定
-												&m_pVtxBuffBillboard,		// 頂点バッファインターフェースへのポインタ
-												NULL)))						// NULLに設定
+    if(FAILED(m_pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * BILL_NUM_VER,	// 頂点データ用に確保するバッファサイズ(バイト単位)
+												D3DUSAGE_WRITEONLY,				// 頂点バッファの使用法　
+												FVF_VERTEX3D,					// 使用する頂点フォーマット
+												D3DPOOL_MANAGED,				// リソースのバッファを保持するメモリクラスを指定
+												&m_pVtxBuffBillboard,			// 頂点バッファインターフェースへのポインタ
+												NULL)))							// NULLに設定
 	{
         return E_FAIL;
 	}

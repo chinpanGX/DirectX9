@@ -7,6 +7,9 @@
 
 #include "BulletManager.h"
 
+#define	BULLET_NUM_VERTEX	4
+#define	BULLET_NUM_POYGON	2
+
 //	スタティック変数
 LPDIRECT3DVERTEXBUFFER9	BulletManager::m_pVtxBuffBullet;		//	頂点バッファへのポインタ
 
@@ -33,6 +36,7 @@ HRESULT BulletManager::Init()
 		m_aBullet[nCntBullet].m_fSizeY = SIZE_Y;
 		m_aBullet[nCntBullet].m_life = 0;
 		m_aBullet[nCntBullet].m_bUse = false;
+		m_shadow.Create(m_aBullet[nCntBullet].m_position, m_aBullet[nCntBullet].m_scale);
 	}
 	m_posBase = D3DXVECTOR3(0.0f,18.0f,0.0f);
 	m_roty = 0.0f;
@@ -61,15 +65,24 @@ void BulletManager::Update()
 			m_aBullet[nCntBullet].m_position.x += m_aBullet[nCntBullet].m_velocity.x;
 			m_aBullet[nCntBullet].m_position.z += m_aBullet[nCntBullet].m_velocity.z;
 			m_aBullet[nCntBullet].m_position.y += m_aBullet[nCntBullet].m_velocity.y;
+			
+			
+			D3DXVECTOR3 pos = m_aBullet[nCntBullet].m_position;
+			pos.y = 0.0f;	//	影は座標を固定しておく->影はジャンプしない
+			m_shadow.SetPosition(m_IdxShadow, pos);
+			
+
 			//	着地
 			if (m_aBullet[nCntBullet].m_position.y <= m_aBullet[nCntBullet].m_fSizeY / 2)
 			{
 				m_aBullet[nCntBullet].m_position.y = m_aBullet[nCntBullet].m_fSizeY / 2;
 				m_aBullet[nCntBullet].m_velocity.y = -m_aBullet[nCntBullet].m_velocity.y * 0.75f;
 			}
+
 			m_aBullet[nCntBullet].m_velocity.x += (0.0f - m_aBullet[nCntBullet].m_velocity.x) * 0.015f;
 			m_aBullet[nCntBullet].m_velocity.y -= 0.25f;
 			m_aBullet[nCntBullet].m_velocity.z += (0.0f - m_aBullet[nCntBullet].m_velocity.z) * 0.015f;
+			
 			m_aBullet[nCntBullet].m_life--;	//	ライフのデクリメント
 			if (m_aBullet[nCntBullet].m_life <= 0)
 			{
@@ -157,7 +170,7 @@ void BulletManager::Draw()
 
 			//	ポリゴンの描画
 			//	引数（プリミティブタイプ、配列の読み取り開始位置、三角ポリゴンの数）
-			m_pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (nCntBullet * 4), 2);
+			m_pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (nCntBullet * 4), BULLET_NUM_POYGON);
 		}
 	}
 	//	ラインティングを有効にする
@@ -170,7 +183,7 @@ void BulletManager::Draw()
 HRESULT BulletManager::MakeVertexBullet(LPDIRECT3DDEVICE9 pDevice)
 {
 	// オブジェクトの頂点バッファを生成
-	if (FAILED(m_pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * 4 * MAX_BULLET,	// 頂点データ用に確保するバッファサイズ(バイト単位)
+	if (FAILED(m_pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * BULLET_NUM_VERTEX * MAX_BULLET,	// 頂点データ用に確保するバッファサイズ(バイト単位)
 		D3DUSAGE_WRITEONLY,			// 頂点バッファの使用法　
 		FVF_VERTEX3D,				// 使用する頂点フォーマット
 		D3DPOOL_MANAGED,			// リソースのバッファを保持するメモリクラスを指定
@@ -253,6 +266,7 @@ int BulletManager::SetPosition(D3DXVECTOR3 pos, D3DXVECTOR3 velocity, float fSiz
 			m_aBullet[nCntBullet].m_life = nLife;
 			m_aBullet[nCntBullet].m_bUse = true;
 			SetVertexBullet(nCntBullet, fSizeX, fSizeY);	//	頂点座標の指定
+			m_IdxShadow = m_shadow.Create(pos, D3DXVECTOR3(1.0f, 1.0f, 1.0f));
 			nIdxBullet = nCntBullet;	//	見つけた配列番号を代入
 			break;
 		}
