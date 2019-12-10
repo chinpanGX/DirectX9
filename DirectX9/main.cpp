@@ -242,7 +242,8 @@ bool D3D_Init(HWND hWnd)
 	// Direct3Dインターフェースの取得
 	g_pD3D = Direct3DCreate9(D3D_SDK_VERSION);
 
-	if (g_pD3D == NULL) {
+	if (g_pD3D == NULL) 
+	{
 		// Direct3Dインターフェースの取得に失敗
 		MessageBox(hWnd, "Direct3Dインターフェースの作成に失敗しました", "エラー", MB_OK);
 		return false;
@@ -337,7 +338,7 @@ bool D3D_Init(HWND hWnd)
 void D3D_Uninit()
 {
 	SAFE_RELEASE(g_pD3DDevice);	//	Direct3Dデバイスの解放
-	SAFE_RELEASE(g_pD3D);			//	Direct3Dインタフェースの解放
+	SAFE_RELEASE(g_pD3D);		//	Direct3Dインタフェースの解放
 }
 
 //　初期化処理関数

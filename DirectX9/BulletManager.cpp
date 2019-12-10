@@ -48,7 +48,7 @@ HRESULT BulletManager::Init()
 void BulletManager::Uninit()
 {
 	SAFE_RELEASE(m_pVtxBuffBullet);
-	m_texture.Unload(1);
+	//m_texture.Unload(1);
 }
 
 void BulletManager::Update()
@@ -60,17 +60,15 @@ void BulletManager::Update()
 	for (int nCntBullet = 0; nCntBullet < MAX_BULLET; nCntBullet++)
 	{
 		//	使用中
-		if (m_aBullet[nCntBullet].m_bUse)
+		if (m_aBullet[nCntBullet].m_bUse == true)
 		{
 			m_aBullet[nCntBullet].m_position.x += m_aBullet[nCntBullet].m_velocity.x;
 			m_aBullet[nCntBullet].m_position.z += m_aBullet[nCntBullet].m_velocity.z;
 			m_aBullet[nCntBullet].m_position.y += m_aBullet[nCntBullet].m_velocity.y;
 			
-			
 			D3DXVECTOR3 pos = m_aBullet[nCntBullet].m_position;
 			pos.y = 0.0f;	//	影は座標を固定しておく->影はジャンプしない
 			m_shadow.SetPosition(m_IdxShadow, pos);
-			
 
 			//	着地
 			if (m_aBullet[nCntBullet].m_position.y <= m_aBullet[nCntBullet].m_fSizeY / 2)

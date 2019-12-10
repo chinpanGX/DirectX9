@@ -197,6 +197,12 @@ void Player::Update()
 		g_posModel.z = 310.0f;
 	}
 #endif
+	//	弾を出す
+ 	if (KeyBoard::IsTrigger(DIK_SPACE))
+	{
+		m_cannon.Create(posModel.x, posModel.z, D3DXVECTOR2(0.0f, 1.0f));
+	}
+
 
 	if (KeyBoard::IsPress(DIK_RETURN))
 	{// リセット
@@ -226,7 +232,7 @@ void Player::Draw()
 	D3DXMatrixMultiply(&mtxWorldModel, &mtxWorldModel, &mtxRot);
 
 	//移動を反映
-	D3DXMatrixTranslation(&mtxTranslate, posModel.x, moveModel.y, posModel.z);
+	D3DXMatrixTranslation(&mtxTranslate, posModel.x, posModel.y, posModel.z);
 	D3DXMatrixMultiply(&mtxWorldModel, &mtxWorldModel, &mtxTranslate);
 
 

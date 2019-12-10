@@ -18,6 +18,7 @@
 #include "billboard.h"
 #include "shadow.h"
 #include "BulletManager.h"
+#include "Cannon.h"
 
 class SceneGame : public SceneBase
 {
@@ -28,6 +29,7 @@ private:
 	BillBoard		m_BB;
 	Shadow			m_shadow;
 	BulletManager	m_bullet;
+	Cannon			m_cannon;
 public:
 	void Init();		//	‰Šú‰»ˆ—
 	void Uninit();		//	I—¹ˆ—

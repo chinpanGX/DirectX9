@@ -142,6 +142,7 @@
     <ClInclude Include="box.h" />
     <ClInclude Include="BulletManager.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="Cannon.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="field.h" />
@@ -161,6 +162,7 @@
     <ClCompile Include="box.cpp" />
     <ClCompile Include="BulletManager.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="Cannon.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="field.cpp" />
