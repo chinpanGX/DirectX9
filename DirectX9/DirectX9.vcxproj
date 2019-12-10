@@ -140,7 +140,6 @@
   <ItemGroup>
     <ClInclude Include="billboard.h" />
     <ClInclude Include="box.h" />
-    <ClInclude Include="bullet.h" />
     <ClInclude Include="BulletManager.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="Controller.h" />
@@ -160,7 +159,6 @@
   <ItemGroup>
     <ClCompile Include="billboard.cpp" />
     <ClCompile Include="box.cpp" />
-    <ClCompile Include="bullet.cpp" />
     <ClCompile Include="BulletManager.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="Controller.cpp" />
