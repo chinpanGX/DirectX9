@@ -21,7 +21,7 @@
 //	グローバル変数
 Camera g_camera;		// カメラ情報
 
-//	スタティック変数
+//	スタティック変数affa
 LPDIRECT3DDEVICE9	Camera::pDevice;
 D3DXMATRIX			Camera::mtxProjection;
 D3DXMATRIX			Camera::mtxView;

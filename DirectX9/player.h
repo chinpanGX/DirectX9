@@ -8,7 +8,6 @@
 
 #include "main.h"
 #include "shadow.h"
-#include "Cannon.h"
 
 //	Playerクラス
 class Player
@@ -25,12 +24,9 @@ private:
 	D3DXVECTOR3					rotDestModel;		//	目的の向き
 	D3DXVECTOR3					moveModel;			//	移動量
 	int							m_IdxShadow;		//	影をつくるインデックスの配列番号
-	Shadow						m_shadow;
-	Cannon						m_cannon;
 public:
 	HRESULT Init(D3DXVECTOR3 pos, D3DXVECTOR3 rot);
 	void Uninit();
 	void Update();
 	void Draw();
-	D3DXVECTOR3	GetPos();
 };

@@ -16,5 +16,5 @@ private:
 public:
 	void Load(const char *filename,int i);		//	テクスチャのロード		（テクスチャ名、格納する配列番号）
 	void Unload(int i);							//	テクスチャのアンロード	（テクスチャ名、アンロードする配列番号）
-	LPDIRECT3DTEXTURE9 Set(int i);				//	テスクチャのセット	（セットする配列番号）
+	LPDIRECT3DTEXTURE9 Set(int i);				//	テスクチャのセット		（セットする配列番号）
 };

@@ -11,7 +11,7 @@
 #include "debugproc.h"
 
 //	マクロ定義
-#define SQUARE_LENGTH (100)					//	描画する地面の数
+#define SQUARE_LENGTH (100)				//	描画する地面の数
 #define SQUARE_NUM  (SQUARE_LENGTH + 1)		//	縮退ポリゴンを含めた地面の数
 #define VERTEX (pow(SQUARE_NUM,2)*2)		//	頂点の数
 

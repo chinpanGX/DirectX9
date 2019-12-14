@@ -8,6 +8,7 @@
 #include "camera.h"
 #include "Controller.h"
 #include "shadow.h"
+#include "bullet.h"
 
 // ƒ}ƒNƒ’è‹`
 #define	MODEL_CAR			"asset/MODEL/car000.x"	// “Ç‚Ýž‚Þƒ‚ƒfƒ‹–¼
@@ -47,14 +48,14 @@ HRESULT Player::Init(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 	}
 
 	//	‰e‚Ìì¬
-	m_IdxShadow = m_shadow.Create(posModel, D3DXVECTOR3(1.0f,1.0f,1.0f));
+	m_IdxShadow = Shadow_Create(posModel, D3DXVECTOR3(1.0f,1.0f,1.0f));
 
 	return S_OK;
 }
 
 void Player::Uninit()
 {
-	m_shadow.Release(m_IdxShadow);
+	Shadow_Release(m_IdxShadow);
 	SAFE_RELEASE(m_pTextureModel);
 	SAFE_RELEASE(m_pBuffMatModel);
 	SAFE_RELEASE(m_pMeshModel);
@@ -200,7 +201,8 @@ void Player::Update()
 	//	’e‚ðo‚·
  	if (KeyBoard::IsTrigger(DIK_SPACE))
 	{
-		m_cannon.Create(posModel.x, posModel.z, D3DXVECTOR2(0.0f, 1.0f));
+		Bullet_Create(posModel.x, posModel.z, D3DXVECTOR2(0.0f, 1.0f));
+
 	}
 
 
@@ -214,7 +216,7 @@ void Player::Update()
 
 	D3DXVECTOR3 pos = posModel;
 	pos.y = 0.0f;	//	‰e‚ÍÀ•W‚ðŒÅ’è‚µ‚Ä‚¨‚­->‰e‚ÍƒWƒƒƒ“ƒv‚µ‚È‚¢
-	m_shadow.SetPosition(m_IdxShadow, pos);
+	Shadow_SetPosition(m_IdxShadow, pos);
 }
 
 void Player::Draw()
@@ -259,7 +261,3 @@ void Player::Draw()
 	m_pDevice->SetMaterial(&matDef);
 }
 
-D3DXVECTOR3 Player::GetPos()
-{
-	return posModel;
-}

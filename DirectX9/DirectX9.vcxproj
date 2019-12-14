@@ -140,9 +140,8 @@
   <ItemGroup>
     <ClInclude Include="billboard.h" />
     <ClInclude Include="box.h" />
-    <ClInclude Include="BulletManager.h" />
+    <ClInclude Include="bullet.h" />
     <ClInclude Include="camera.h" />
-    <ClInclude Include="Cannon.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="field.h" />
@@ -160,9 +159,8 @@
   <ItemGroup>
     <ClCompile Include="billboard.cpp" />
     <ClCompile Include="box.cpp" />
-    <ClCompile Include="BulletManager.cpp" />
+    <ClCompile Include="bullet.cpp" />
     <ClCompile Include="camera.cpp" />
-    <ClCompile Include="Cannon.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="field.cpp" />

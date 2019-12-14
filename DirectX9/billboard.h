@@ -21,7 +21,6 @@ private:
 	static bool						m_bEnableGravity;			// d—Í‚ğ—LŒø‚É‚·‚é‚©‚Ç‚¤‚©
 	static LPDIRECT3DDEVICE9		m_pDevice;
 	Texture							m_texture;
-	Shadow							m_shadow;
 	int								m_IdxShadow;				//	‰e‚Ì”z—ñ”Ô†‚ğŠi”[
 public:
 	HRESULT Init();

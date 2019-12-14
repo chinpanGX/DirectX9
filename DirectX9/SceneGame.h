@@ -17,8 +17,7 @@
 #include "Grid.h"
 #include "billboard.h"
 #include "shadow.h"
-#include "BulletManager.h"
-#include "Cannon.h"
+#include "bullet.h"
 
 class SceneGame : public SceneBase
 {
@@ -27,9 +26,6 @@ private:
 	Player			m_Player;
 	Field			m_Field;
 	BillBoard		m_BB;
-	Shadow			m_shadow;
-	BulletManager	m_bullet;
-	Cannon			m_cannon;
 public:
 	void Init();		//	‰Šú‰»ˆ—
 	void Uninit();		//	I—¹ˆ—
