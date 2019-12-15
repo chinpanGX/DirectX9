@@ -25,7 +25,9 @@ private:
 	Camera			m_Camera;
 	Player			m_Player;
 	Field			m_Field;
-	BillBoard		m_BB;
+	Bullet			m_Bullet;
+	Shadow			m_Shadow;
+
 public:
 	void Init();		//	‰Šú‰»ˆ—
 	void Uninit();		//	I—¹ˆ—

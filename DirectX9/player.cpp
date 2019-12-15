@@ -48,14 +48,14 @@ HRESULT Player::Init(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 	}
 
 	//	‰e‚Ìì¬
-	m_IdxShadow = Shadow_Create(posModel, D3DXVECTOR3(1.0f,1.0f,1.0f));
+	m_IdxShadow = m_shadow.Create(posModel, D3DXVECTOR3(1.0f,1.0f,1.0f));
 
 	return S_OK;
 }
 
 void Player::Uninit()
 {
-	Shadow_Release(m_IdxShadow);
+	m_shadow.Release(m_IdxShadow);
 	SAFE_RELEASE(m_pTextureModel);
 	SAFE_RELEASE(m_pBuffMatModel);
 	SAFE_RELEASE(m_pMeshModel);
@@ -201,7 +201,7 @@ void Player::Update()
 	//	’e‚ðo‚·
  	if (KeyBoard::IsTrigger(DIK_SPACE))
 	{
-		Bullet_Create(posModel.x, posModel.z, D3DXVECTOR2(0.0f, 1.0f));
+		m_bullet.Create(posModel.x, posModel.z, D3DXVECTOR2(0.0f, 1.0f));
 
 	}
 
@@ -216,7 +216,7 @@ void Player::Update()
 
 	D3DXVECTOR3 pos = posModel;
 	pos.y = 0.0f;	//	‰e‚ÍÀ•W‚ðŒÅ’è‚µ‚Ä‚¨‚­->‰e‚ÍƒWƒƒƒ“ƒv‚µ‚È‚¢
-	Shadow_SetPosition(m_IdxShadow, pos);
+	m_shadow.SetPosition(m_IdxShadow, pos);
 }
 
 void Player::Draw()

@@ -108,7 +108,6 @@ void BillBoard::Update()
 
 	D3DXVECTOR3 pos = m_posBillboard;
 	pos.y = 0.0f;	//	影は座標を固定しておく->影はジャンプしない
-	Shadow_SetPosition(m_IdxShadow, pos);
 
 	DebugProc::Print((char*)"*** ボール操作 ***\n");
 	DebugProc::Print((char*)"[ボールの位置  ：(%f : %f : %f)]\n", m_posBillboard.x, m_posBillboard.y, m_posBillboard.z);
