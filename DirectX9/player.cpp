@@ -23,32 +23,26 @@ LPD3DXMESH			Player::m_pMeshModel	= NULL;		// メッシュ情報へのポインタ
 LPD3DXBUFFER		Player::m_pBuffMatModel	= NULL;		// マテリアル情報へのポインタ
 DWORD				Player::m_nNumMatModel;				// マテリアル情報の総数
 
-
-HRESULT Player::Init(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
+//	初期化処理
+HRESULT Player::Init(D3DXVECTOR3 pos, D3DXVECTOR3 rot )
 {
 	m_pDevice = GetD3DDevice();
 
 	//位置・向き・移動の初期設定
-	posModel = pos;
-	rotModel = rot;
-	rotDestModel = rot;
-	moveModel = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	m_pos = pos;
+	m_rot = rot;
+	m_rotDest = rot;
+	m_dir = 3;
+	m_move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	//Xファイルの読み込み
-	if (FAILED(D3DXLoadMeshFromX(MODEL_CAR,
-		D3DXMESH_SYSTEMMEM,
-		m_pDevice,
-		NULL,
-		&m_pBuffMatModel,
-		NULL,
-		&m_nNumMatModel,
-		&m_pMeshModel)))
+	if (FAILED(D3DXLoadMeshFromX(MODEL_CAR,D3DXMESH_SYSTEMMEM,m_pDevice,NULL,&m_pBuffMatModel,NULL,&m_nNumMatModel,&m_pMeshModel)))
 	{
 		return E_FAIL;
 	}
 
 	//	影の作成
-	m_IdxShadow = m_shadow.Create(posModel, D3DXVECTOR3(1.0f,1.0f,1.0f));
+	m_IdxShadow = m_shadow.Create(m_pos, D3DXVECTOR3(0.7f,0.7f,0.7f));
 
 	return S_OK;
 }
@@ -63,94 +57,52 @@ void Player::Uninit()
 
 void Player::Update()
 {
-	Camera *pCamera;
-	float fDiffRotY;
+	//	方向ベクトルの初期化
+	D3DXVECTOR3 dir = D3DXVECTOR3(0.0f,0.0f,0.0f); 
 
 	// カメラの取得
-	pCamera = GetCamera();
+	Camera *m_pCamera = GetCamera();
+	float fDiffRotY;
 
-	if (KeyBoard::IsPress(DIK_A) || GamePad::IsPress(0,LEFTSTICK_LEFT))
+	//	前移動
+	if (KeyBoard::IsPress(DIK_W) || GamePad::IsPress(0, LEFTSTICK_UP))
 	{
-		if (KeyBoard::IsPress(DIK_W) || GamePad::IsPress(0,LEFTSTICK_UP))
-		{// 左奥移動
-			moveModel.x += sinf(-D3DX_PI * 0.75f - pCamera->rot.y) * VALUE_MOVE_MODEL;
-			moveModel.z -= cosf(-D3DX_PI * 0.75f - pCamera->rot.y) * VALUE_MOVE_MODEL;
-
-			rotDestModel.y = pCamera->rot.y + D3DX_PI * 0.75f;
-		}
-		else if (KeyBoard::IsPress(DIK_S) || GamePad::IsPress(0, LEFTSTICK_DOWN))
-		{// 左手前移動
-			moveModel.x += sinf(-D3DX_PI * 0.25f - pCamera->rot.y) * VALUE_MOVE_MODEL;
-			moveModel.z -= cosf(-D3DX_PI * 0.25f - pCamera->rot.y) * VALUE_MOVE_MODEL;
-
-			rotDestModel.y = pCamera->rot.y + D3DX_PI * 0.25f;
-		}
-		else
-		{// 左移動
-			moveModel.x += sinf(-D3DX_PI * 0.50f - pCamera->rot.y) * VALUE_MOVE_MODEL;
-			moveModel.z -= cosf(-D3DX_PI * 0.50f - pCamera->rot.y) * VALUE_MOVE_MODEL;
-
-			rotDestModel.y = pCamera->rot.y + D3DX_PI * 0.50f;
-		}
+		dir.z -= -1;
+		m_dir = 0;
+		m_move.x += sinf(D3DX_PI * 1.0f - m_pCamera->rot.y) * VALUE_MOVE_MODEL;
+		m_move.z -= cosf(D3DX_PI * 1.0f - m_pCamera->rot.y) * VALUE_MOVE_MODEL;
+		m_rotDest.y = m_pCamera->rot.y + D3DX_PI * 1.0f;
 	}
+	//	後移動
+	else if (KeyBoard::IsPress(DIK_S) || GamePad::IsPress(0, LEFTSTICK_DOWN))
+	{
+		dir.z += -1;
+		m_dir = 3;
+		m_move.x += sinf(D3DX_PI * 0.0f - m_pCamera->rot.y) * VALUE_MOVE_MODEL;
+		m_move.z -= cosf(D3DX_PI * 0.0f - m_pCamera->rot.y) * VALUE_MOVE_MODEL;
+		m_rotDest.y = m_pCamera->rot.y + D3DX_PI * 0.0f;
+	}
+	//	左移動
+	else if (KeyBoard::IsPress(DIK_A) || GamePad::IsPress(0,LEFTSTICK_LEFT))
+	{
+		dir.x += -1;
+		m_dir = 1;
+		m_move.x += sinf(-D3DX_PI * 0.50f - m_pCamera->rot.y) * VALUE_MOVE_MODEL;
+		m_move.z -= cosf(-D3DX_PI * 0.50f - m_pCamera->rot.y) * VALUE_MOVE_MODEL;
+		m_rotDest.y = m_pCamera->rot.y + D3DX_PI * 0.50f;
+	}
+	//	右移動
 	else if (KeyBoard::IsPress(DIK_D) || GamePad::IsPress(0, LEFTSTICK_RIGHT))
 	{
-		if (KeyBoard::IsPress(DIK_W) || GamePad::IsPress(0, LEFTSTICK_UP))
-		{// 右奥移動
-			moveModel.x += sinf(D3DX_PI * 0.75f - pCamera->rot.y) * VALUE_MOVE_MODEL;
-			moveModel.z -= cosf(D3DX_PI * 0.75f - pCamera->rot.y) * VALUE_MOVE_MODEL;
-
-			rotDestModel.y = pCamera->rot.y - D3DX_PI * 0.75f;
-		}
-		else if (KeyBoard::IsPress(DIK_S) || GamePad::IsPress(0, LEFTSTICK_DOWN))
-		{// 右手前移動
-			moveModel.x += sinf(D3DX_PI * 0.25f - pCamera->rot.y) * VALUE_MOVE_MODEL;
-			moveModel.z -= cosf(D3DX_PI * 0.25f - pCamera->rot.y) * VALUE_MOVE_MODEL;
-
-			rotDestModel.y = pCamera->rot.y - D3DX_PI * 0.25f;
-		}
-		else
-		{// 右移動
-			moveModel.x += sinf(D3DX_PI * 0.50f - pCamera->rot.y) * VALUE_MOVE_MODEL;
-			moveModel.z -= cosf(D3DX_PI * 0.50f - pCamera->rot.y) * VALUE_MOVE_MODEL;
-
-			rotDestModel.y = pCamera->rot.y - D3DX_PI * 0.50f;
-		}
-	}
-	else if (KeyBoard::IsPress(DIK_W) || GamePad::IsPress(0, LEFTSTICK_UP))
-	{// 前移動
-		moveModel.x += sinf(D3DX_PI * 1.0f - pCamera->rot.y) * VALUE_MOVE_MODEL;
-		moveModel.z -= cosf(D3DX_PI * 1.0f - pCamera->rot.y) * VALUE_MOVE_MODEL;
-
-		rotDestModel.y = pCamera->rot.y + D3DX_PI * 1.0f;
-	}
-	else if (KeyBoard::IsPress(DIK_S) || GamePad::IsPress(0, LEFTSTICK_DOWN))
-	{// 後移動
-		moveModel.x += sinf(D3DX_PI * 0.0f - pCamera->rot.y) * VALUE_MOVE_MODEL;
-		moveModel.z -= cosf(D3DX_PI * 0.0f - pCamera->rot.y) * VALUE_MOVE_MODEL;
-
-		rotDestModel.y = pCamera->rot.y + D3DX_PI * 0.0f;
-	}
-
-	if (KeyBoard::IsPress(DIK_Q) || GamePad::IsPress(0,PS4RIGHTSTICK_LEFT))
-	{// 左回転
-		rotDestModel.y -= VALUE_ROTATE_MODEL;
-		if (rotDestModel.y < -D3DX_PI)
-		{
-			rotDestModel.y += D3DX_PI * 2.0f;
-		}
-	}
-	if (KeyBoard::IsPress(DIK_E) || GamePad::IsPress(0,PS4RIGHTSTICK_RIGHT))
-	{// 右回転
-		rotDestModel.y += VALUE_ROTATE_MODEL;
-		if (rotDestModel.y > D3DX_PI)
-		{
-			rotDestModel.y -= D3DX_PI * 2.0f;
-		}
+		dir.x -= -1;
+		m_dir = 2;
+		m_move.x += sinf(D3DX_PI * 0.50f - m_pCamera->rot.y) * VALUE_MOVE_MODEL;
+		m_move.z -= cosf(D3DX_PI * 0.50f - m_pCamera->rot.y) * VALUE_MOVE_MODEL;
+		m_rotDest.y = m_pCamera->rot.y - D3DX_PI * 0.50f;
 	}
 
 	// 目的の角度までの差分
-	fDiffRotY = rotDestModel.y - rotModel.y;
+	fDiffRotY = m_rotDest.y - m_rot.y;
 	if (fDiffRotY > D3DX_PI)
 	{
 		fDiffRotY -= D3DX_PI * 2.0f;
@@ -161,60 +113,82 @@ void Player::Update()
 	}
 
 	// 目的の角度まで慣性をかける
-	rotModel.y += fDiffRotY * RATE_ROTATE_MODEL;
-	if (rotModel.y > D3DX_PI)
+	m_rot.y += fDiffRotY * RATE_ROTATE_MODEL;
+	if (m_rot.y > D3DX_PI)
 	{
-		rotModel.y -= D3DX_PI * 2.0f;
+		m_rot.y -= D3DX_PI * 2.0f;
 	}
-	if (rotModel.y < -D3DX_PI)
+	if (m_rot.y < -D3DX_PI)
 	{
-		rotModel.y += D3DX_PI * 2.0f;
+		m_rot.y += D3DX_PI * 2.0f;
+	}
+
+	//	弾を発射
+    if (KeyBoard::IsTrigger(DIK_SPACE))
+	{
+		///	<summary>
+		///	入力がされていない場合、向いている方向から発射方向を作成
+		/// </summary>
+		if (D3DXVec3Length(&dir) < 0.01f)
+		{
+			switch (m_dir)
+			{
+			case 0:	//	前向き
+				dir.z = 1.0f;
+				break;
+			case 1:	//	左向き
+				dir.x = -1.0f;
+				break;
+			case 2:	//	右向き
+				dir.x = 1.0f;
+				break;
+			case 3:	//	後向き
+				dir.z = -1.0f;
+				break;
+			}
+		}
+		m_bullet.Create(m_pos.x, 6.5f, m_pos.z, D3DXVECTOR3(dir));
+		dir = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	}
 
 	/// 位置移動
-	posModel.x += moveModel.x;
-	posModel.z += moveModel.z;
+	m_pos.x += m_move.x;
+	m_pos.z += m_move.z;
+
 
 	// 移動量に慣性をかける
-	moveModel.x += (0.0f - moveModel.x) * RATE_MOVE_MODEL;
-	moveModel.z += (0.0f - moveModel.z) * RATE_MOVE_MODEL;
+	m_move.x += (0.0f - m_move.x) * RATE_MOVE_MODEL;
+	m_move.z += (0.0f - m_move.z) * RATE_MOVE_MODEL;
 
-#if 0
 	// 範囲チェック
-	if (g_posModel.x < -310.0f)
+#if 0
+	if (g_m_pos.x < -310.0f)
 	{
-		g_posModel.x = -310.0f;
+		g_m_pos.x = -310.0f;
 	}
-	if (g_posModel.x > 310.0f)
+	if (g_m_pos.x > 310.0f)
 	{
-		g_posModel.x = 310.0f;
+		g_m_pos.x = 310.0f;
 	}
-	if (g_posModel.z < -310.0f)
+	if (g_m_pos.z < -310.0f)
 	{
-		g_posModel.z = -310.0f;
+		g_m_pos.z = -310.0f;
 	}
-	if (g_posModel.z > 310.0f)
+	if (g_m_pos.z > 310.0f)
 	{
-		g_posModel.z = 310.0f;
+		g_m_pos.z = 310.0f;
 	}
 #endif
-	//	弾を出す
- 	if (KeyBoard::IsTrigger(DIK_SPACE))
-	{
-		m_bullet.Create(posModel.x, posModel.z, D3DXVECTOR2(0.0f, 1.0f));
-
-	}
-
 
 	if (KeyBoard::IsPress(DIK_RETURN))
 	{// リセット
-		posModel = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		moveModel = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		rotModel = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		rotDestModel = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		m_pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		m_move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		m_rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	}
 
-	D3DXVECTOR3 pos = posModel;
+	D3DXVECTOR3 pos = m_pos;
 	pos.y = 0.0f;	//	影は座標を固定しておく->影はジャンプしない
 	m_shadow.SetPosition(m_IdxShadow, pos);
 }
@@ -227,19 +201,19 @@ void Player::Draw()
 	D3DMATERIAL9 matDef;
 
 	//ワールドマトリックスの初期化
-	D3DXMatrixIdentity(&mtxWorldModel);
+	D3DXMatrixIdentity(&m_mtxWorldModel);
 
 	//回転を反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, rotModel.y, rotModel.x, rotModel.z);
-	D3DXMatrixMultiply(&mtxWorldModel, &mtxWorldModel, &mtxRot);
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, m_rot.y, m_rot.x, m_rot.z);
+	D3DXMatrixMultiply(&m_mtxWorldModel, &m_mtxWorldModel, &mtxRot);
 
 	//移動を反映
-	D3DXMatrixTranslation(&mtxTranslate, posModel.x, posModel.y, posModel.z);
-	D3DXMatrixMultiply(&mtxWorldModel, &mtxWorldModel, &mtxTranslate);
+	D3DXMatrixTranslation(&mtxTranslate, m_pos.x, m_pos.y, m_pos.z);
+	D3DXMatrixMultiply(&m_mtxWorldModel, &m_mtxWorldModel, &mtxTranslate);
 
 
 	//ワールドマトリックスの設定
-	m_pDevice->SetTransform(D3DTS_WORLD, &mtxWorldModel);
+	m_pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorldModel);
 
 	//現在のマテリアルを取得
 	m_pDevice->GetMaterial(&matDef);
@@ -260,4 +234,3 @@ void Player::Draw()
 	//マテリアルをデフォルトに戻す
 	m_pDevice->SetMaterial(&matDef);
 }
-

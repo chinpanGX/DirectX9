@@ -20,11 +20,12 @@ private:
 	static DWORD				m_nNumMatModel;		//	マテリアル情報の総数
 	
 	LPDIRECT3DDEVICE9			m_pDevice;			//	デバイス
-	D3DXMATRIX					mtxWorldModel;		//	ワールドマトリックス
-	D3DXVECTOR3					posModel;			//	現在の位置
-	D3DXVECTOR3					rotModel;			//	現在の向き
-	D3DXVECTOR3					rotDestModel;		//	目的の向き
-	D3DXVECTOR3					moveModel;			//	移動量
+	D3DXMATRIX					m_mtxWorldModel;		//	ワールドマトリックス
+	D3DXVECTOR3					m_pos;				//	現在の位置
+	D3DXVECTOR3					m_rot;				//	現在の向き
+	D3DXVECTOR3					m_rotDest;			//	目的の向き
+	int							m_dir;				//	向いている方向
+	D3DXVECTOR3					m_move;				//	移動量
 	int							m_IdxShadow;		//	影をつくるインデックスの配列番号
 
 	Bullet	m_bullet;

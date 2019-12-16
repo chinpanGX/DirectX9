@@ -11,7 +11,7 @@
 // マクロ定義
 #define	BULLET_SIZE_X		(20.0f)							// ビルボードの幅
 #define	BULLET_SIZE_Y		(20.0f)							// ビルボードの高さ
-#define	VALUE_MOVE_BULLET	(0.30f)							// 移動速度
+#define	VALUE_MOVE_BULLET	(5.0f)							// 移動速度
 #define BULLET_NUM_VERTEX	4
 #define BULLET_NUM_POLYGON	2
 #define MAX_BULLET			100
@@ -22,6 +22,7 @@ Bullet g_Bullet[MAX_BULLET];
 //	スタティック変数
 LPDIRECT3DVERTEXBUFFER9	Bullet::m_pVtxBuffBullet = NULL;	// 頂点バッファへのポインタ
 
+//	弾の初期化処理
 HRESULT Bullet::Init()
 {
 	m_pDevice = GetD3DDevice();
@@ -32,51 +33,54 @@ HRESULT Bullet::Init()
 	// テクスチャの読み込み
 	m_texture.Load("asset/TEXTURE/bullet000.png" ,1);
 
-	for (int i = 0; i < MAX_BULLET; i++)
+	for (int nCntBullet = 0; nCntBullet < MAX_BULLET; nCntBullet++)
 	{
-		g_Bullet[i].m_pos = D3DXVECTOR3(0.0f, 18.0f, 0.0f);
-		g_Bullet[i].m_scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
-		g_Bullet[i].m_move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		g_Bullet[i].m_bUse = false;
+		g_Bullet[nCntBullet].m_pos = D3DXVECTOR3(0.0f, 18.0f, 0.0f);
+		g_Bullet[nCntBullet].m_scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+		g_Bullet[nCntBullet].m_move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_Bullet[nCntBullet].m_bUse = false;
 	}
 
 	return S_OK;
 }
 
+//	弾の終了処理
 void Bullet::Uninit()
 {
 	m_texture.Unload(1);
 	SAFE_RELEASE(m_pVtxBuffBullet);
 }
 
+//	弾の更新処理
 void Bullet::Update()
 {
-	for (int i = 0; i < MAX_BULLET; i++)
+	for (int nCntBullet = 0; nCntBullet < MAX_BULLET; nCntBullet++)
 	{
-		if (g_Bullet[i].m_bUse == true)
+		if (g_Bullet[nCntBullet].m_bUse == true)
 		{
 			//時間を経過させる
-			g_Bullet[i].m_frame++;
+			g_Bullet[nCntBullet].m_frame++;
 
 			//100フレーム経過で消滅
-			if (g_Bullet[i].m_frame > 100)
+			if (g_Bullet[nCntBullet].m_frame > 100)
 			{
 				//影の解放処理
-				m_shadow.Release(g_Bullet[i].m_nIdxShadowBullet);
-				g_Bullet[i].m_bUse = false;
+				m_shadow.Release(g_Bullet[nCntBullet].m_nIdxShadowBullet);
+				g_Bullet[nCntBullet].m_bUse = false;
 			}
 
 			//座標の更新処理
-			g_Bullet[i].m_pos += g_Bullet[i].m_move;
+			g_Bullet[nCntBullet].m_pos += g_Bullet[nCntBullet].m_move * VALUE_MOVE_BULLET;
 
 			//影の位置を弾に合わせる
-			D3DXVECTOR3 pos = g_Bullet[i].m_pos;
+			D3DXVECTOR3 pos = g_Bullet[nCntBullet].m_pos;
 			pos.y = 0.0f;
-			m_shadow.SetPosition(g_Bullet[i].m_nIdxShadowBullet, pos);
+			m_shadow.SetPosition(g_Bullet[nCntBullet].m_nIdxShadowBullet, pos);
 		}
 	}
 }
 
+//	弾の描画処理
 void Bullet::Draw()
 {
 	m_pDevice = GetD3DDevice();
@@ -93,39 +97,39 @@ void Bullet::Draw()
 	m_pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 
 
-	for (int i = 0; i < MAX_BULLET; i++)
+	for (int nCntBullet = 0; nCntBullet < MAX_BULLET; nCntBullet++)
 	{
 		//有効フラグチェック
-		if (g_Bullet[i].m_bUse == false)
+		if (g_Bullet[nCntBullet].m_bUse == false)
 			continue;
 
 		// ワールドマトリックスの初期化
-		D3DXMatrixIdentity(&g_Bullet[i].m_mtxWorldBullet);
+		D3DXMatrixIdentity(&g_Bullet[nCntBullet].m_mtxWorldBullet);
 
 		// ビューマトリックスを取得
 		m_pDevice->GetTransform(D3DTS_VIEW, &mtxView);
 
 		//	転置行列
-		g_Bullet[i].m_mtxWorldBullet._11 = mtxView._11;
-		g_Bullet[i].m_mtxWorldBullet._12 = mtxView._21;
-		g_Bullet[i].m_mtxWorldBullet._13 = mtxView._31;
-		g_Bullet[i].m_mtxWorldBullet._21 = mtxView._12;	// ←
-		g_Bullet[i].m_mtxWorldBullet._22 = mtxView._22;	// ←ここをコメントアウトすると垂直方向は無視
-		g_Bullet[i].m_mtxWorldBullet._23 = mtxView._32;	// ←
-		g_Bullet[i].m_mtxWorldBullet._31 = mtxView._13;
-		g_Bullet[i].m_mtxWorldBullet._32 = mtxView._23;
-		g_Bullet[i].m_mtxWorldBullet._33 = mtxView._33;
+		g_Bullet[nCntBullet].m_mtxWorldBullet._11 = mtxView._11;
+		g_Bullet[nCntBullet].m_mtxWorldBullet._12 = mtxView._21;
+		g_Bullet[nCntBullet].m_mtxWorldBullet._13 = mtxView._31;
+		g_Bullet[nCntBullet].m_mtxWorldBullet._21 = mtxView._12;	// ←
+		g_Bullet[nCntBullet].m_mtxWorldBullet._22 = mtxView._22;	// ←ここをコメントアウトすると垂直方向は無視
+		g_Bullet[nCntBullet].m_mtxWorldBullet._23 = mtxView._32;	// ←
+		g_Bullet[nCntBullet].m_mtxWorldBullet._31 = mtxView._13;
+		g_Bullet[nCntBullet].m_mtxWorldBullet._32 = mtxView._23;
+		g_Bullet[nCntBullet].m_mtxWorldBullet._33 = mtxView._33;
 
 		// スケールを反映
-		D3DXMatrixScaling(&mtxScale, g_Bullet[i].m_scl.x, g_Bullet[i].m_scl.y, g_Bullet[i].m_scl.z);
-		D3DXMatrixMultiply(&g_Bullet[i].m_mtxWorldBullet, &g_Bullet[i].m_mtxWorldBullet, &mtxScale);
+		D3DXMatrixScaling(&mtxScale, g_Bullet[nCntBullet].m_scl.x, g_Bullet[nCntBullet].m_scl.y, g_Bullet[nCntBullet].m_scl.z);
+		D3DXMatrixMultiply(&g_Bullet[nCntBullet].m_mtxWorldBullet, &g_Bullet[nCntBullet].m_mtxWorldBullet, &mtxScale);
 
 		// 移動を反映
-		D3DXMatrixTranslation(&mtxTranslate, g_Bullet[i].m_pos.x, g_Bullet[i].m_pos.y, g_Bullet[i].m_pos.z);
-		D3DXMatrixMultiply(&g_Bullet[i].m_mtxWorldBullet, &g_Bullet[i].m_mtxWorldBullet, &mtxTranslate);
+		D3DXMatrixTranslation(&mtxTranslate, g_Bullet[nCntBullet].m_pos.x, g_Bullet[nCntBullet].m_pos.y, g_Bullet[nCntBullet].m_pos.z);
+		D3DXMatrixMultiply(&g_Bullet[nCntBullet].m_mtxWorldBullet, &g_Bullet[nCntBullet].m_mtxWorldBullet, &mtxTranslate);
 
 		// ワールドマトリックスの設定
-		m_pDevice->SetTransform(D3DTS_WORLD, &g_Bullet[i].m_mtxWorldBullet);
+		m_pDevice->SetTransform(D3DTS_WORLD, &g_Bullet[nCntBullet].m_mtxWorldBullet);
 
 		// 頂点バッファをデバイスのデータストリームにバインド
 		m_pDevice->SetStreamSource(0, m_pVtxBuffBullet, 0, sizeof(VERTEX_3D));
@@ -148,39 +152,41 @@ void Bullet::Draw()
 	m_pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
 }
 
-void Bullet::Create(float x, float y, D3DXVECTOR2 dir)
+//	弾の生成
+void Bullet::Create(float x, float y, float z, D3DXVECTOR3 dir)
 {
-	for (int i = 0; i < MAX_BULLET; i++) {
-
-		// もし弾がすでに有効だったら？
-		if (g_Bullet[i].m_bUse) {
+	for (int nCntBullet = 0; nCntBullet < MAX_BULLET; nCntBullet++)
+	{
+		if (g_Bullet[nCntBullet].m_bUse == true)
+		{
 			continue;
 		}
-
 		// 弾の座標に引数の値を代入する
-		g_Bullet[i].m_pos.x = x;
-		g_Bullet[i].m_pos.y = 0.0f;
-		g_Bullet[i].m_pos.z = y;
+		g_Bullet[nCntBullet].m_pos.x = x;
+		g_Bullet[nCntBullet].m_pos.y = y;
+		g_Bullet[nCntBullet].m_pos.z = z;
 
 		// 弾の移動方向を指定する
-		D3DXVec2Normalize(&dir, &dir);
-		g_Bullet[i].m_move.x = dir.x;
-		g_Bullet[i].m_move.y = 0.0f;
-		g_Bullet[i].m_move.z = dir.y;
+		D3DXVec3Normalize(&dir, &dir);
+		g_Bullet[nCntBullet].m_move.x = dir.x;
+		g_Bullet[nCntBullet].m_move.y = dir.y;
+		g_Bullet[nCntBullet].m_move.z = dir.z;
 
 		// 有効フレームを初期化
-		g_Bullet[i].m_frame = 0;
+		g_Bullet[nCntBullet].m_frame = 0;
 
 		//影を作成する
-		g_Bullet[i].m_nIdxShadowBullet = m_shadow.Create(g_Bullet[i].m_pos, D3DXVECTOR3(1.0f, 1.0f, 1.0f));
+		g_Bullet[nCntBullet].m_nIdxShadowBullet = m_shadow.Create(g_Bullet[nCntBullet].m_pos, D3DXVECTOR3(0.7f, 0.7f, 0.7f));
 
 		// 弾を有効にする
-		g_Bullet[i].m_bUse = true;
+		g_Bullet[nCntBullet].m_bUse = true;
 
 		break;
 	}
+	
 }
 
+//	頂点情報の生成
 HRESULT Bullet::MakeVertexBullet(LPDIRECT3DDEVICE9 pDevice)
 {
 	// オブジェクトの頂点バッファを生成
@@ -231,6 +237,7 @@ HRESULT Bullet::MakeVertexBullet(LPDIRECT3DDEVICE9 pDevice)
 	return S_OK;
 }
 
+//	頂点座標の設定
 void Bullet::SetVertexBullet(float fSizeX, float fSizeY)
 {
 	{//頂点バッファの中身を埋める

@@ -7,7 +7,7 @@
 
 //#	インクルードファイル
 #include "main.h"
-#include "Controller.h"
+#include "input.h"
 #include <time.h>
 #include "SceneManager.h"
 
@@ -352,13 +352,7 @@ bool Init(HINSTANCE hInst)
 	{
 		return false;	// ゲームの初期化に失敗した
 	}
-	
-	//	コントローラの初期化
-	if (!KeyBoard::Init(hInst, g_hWnd))
-	{
-		return false;
-	}
-	if (!GamePad::Init(hInst, g_hWnd))
+	if (!Input::Init(hInst,g_hWnd))
 	{
 		return false;
 	}
@@ -375,9 +369,7 @@ void Uninit()
 	//	メインループ終了処理
 	SceneManager::Uninit();
 
-	//	コントローラの終了処理
-	KeyBoard::Uninit();
-	GamePad::Uninit();
+	Input::Uninit();
 
 	// ゲームの終了処理(Direct3Dの終了処理)
 	D3D_Uninit();
@@ -386,9 +378,7 @@ void Uninit()
 // 更新処理関数
 void Update()
 {
-	//コントローラの状態を更新する
-	KeyBoard::Update();
-	GamePad::Update();
+	Input::Update();
 
 	//	メインループ更新処理
 	SceneManager::Update();

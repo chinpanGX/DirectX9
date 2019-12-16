@@ -9,11 +9,11 @@
 #include "shadow.h"
 
 // マクロ定義
-#define	SHADOW_SIZE_X		(50.0f)							// 弾の幅
-#define	SHADOW_SIZE_Z		(50.0f)							// 弾の高さ
+#define	SHADOW_SIZE_X		(50.0f)		// 弾の幅
+#define	SHADOW_SIZE_Z		(50.0f)		// 弾の高さ
 #define SHADOW_NUM_VERTEX	4
 #define SHADOW_NUM_POLYGON	2
-#define	MAX_SHADOW			(128)							// 影最大数
+#define	MAX_SHADOW			(128)		// 影最大数
 
 // グローバル変数
 Shadow					g_aShadow[MAX_SHADOW];		// 影ワーク
@@ -39,14 +39,11 @@ HRESULT Shadow::Init()
 		g_aShadow[nCntShadow].m_scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
 		g_aShadow[nCntShadow].m_bUse = false;
 	}
-
-
+	
 	return S_OK;
 }
 
-//=============================================================================
 // 終了処理
-//=============================================================================
 void Shadow::Uninit()
 {
 	m_texture.Unload(2);

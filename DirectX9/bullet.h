@@ -31,7 +31,7 @@ public:
 	void Uninit();
 	void Update();
 	void Draw();
-	void Create(float x, float y, D3DXVECTOR2 dir);
+	void Create(float x, float y, float z, D3DXVECTOR3 dir);
 
 private:
 	HRESULT MakeVertexBullet(LPDIRECT3DDEVICE9 pDevice);
