@@ -1,20 +1,19 @@
 /*==================================
 
-	[input.cpp]
+	DirectInput処理[input.cpp]
 	Author : 出合翔太
 
 ====================================*/
 
 #include "input.h"
-#include "main.h"
+#include "Controller.h"
 
 //	スタティック変数
 LPDIRECTINPUT8			Input::m_pInput = NULL;		//	DirectInputオブジェクト
-			
-//	DirectInputオブジェクト初期化
-bool Input::Init(HINSTANCE hInstance)
+
+//	入力処理の初期化
+bool Input::Init(HINSTANCE hInstance, HWND hWnd)
 {
-	//	DirectInput8の作成
 	if (m_pInput == NULL)
 	{
 		//	作成の失敗
@@ -24,11 +23,26 @@ bool Input::Init(HINSTANCE hInstance)
 			return false;
 		}
 	}
-	return true;	//正常終了
+	//	入力デバイスの初期化
+	KeyBoard::Init(hInstance, hWnd);
+	GamePad::Init(hInstance, hWnd);
+	Mouse::Init(hInstance, hWnd);
+	return true;
 }
 
-//DirectInputオブジェクト終了処理
+//	入力処理の終了処理
 void Input::Uninit()
-{	
+{
+	Mouse::Uninit();
+	GamePad::Uninit();
+	KeyBoard::Uninit();
 	SAFE_RELEASE(m_pInput);
+}
+
+//	入力処理の更新処理
+void Input::Update()
+{
+	KeyBoard::Update();
+	GamePad::Update();
+	Mouse::Update();
 }

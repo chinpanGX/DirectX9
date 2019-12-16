@@ -14,13 +14,6 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-//#	プラグマコメント：リンカーにライブラリファイルを指定
-#pragma comment(lib, "dxguid.lib")
-#pragma comment(lib, "d3d9.lib")
-#pragma comment(lib, "d3dx9.lib")
-#pragma comment(lib, "dinput8.lib")
-#pragma comment(lib, "winmm.lib")
-
 //	マクロ定義
 #define CLASS_NAME     "GameWindow"       // ウインドウクラスの名前
 #define WINDOW_CAPTION "ゲームウィンドウ" // ウィンドウの名前
@@ -30,6 +23,7 @@ static	HWND g_hWnd;								// ウィンドウハンドル
 bool	g_bDispDebug = true;						// デバッグ表示ON/OFF
 static	LPDIRECT3D9			g_pD3D = NULL;          // Direct3Dインターフェース
 static	LPDIRECT3DDEVICE9	g_pD3DDevice = NULL;	// Direct3Dデバイス
+int		g_FPScount = 0;	//	FPS
 
 //	プロトタイプ宣言
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);	// ウィンドウプロシージャ(コールバック関数)
@@ -68,8 +62,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	// フレームカウント初期化
 	dwExecLastTime = dwFPSLastTime = timeGetTime();
-	dwCurrentTime = dwFrameCount = 0;	//初期値を0にすることを忘れないように（FPSを取得したときゴミが混ざること防ぐため）
-
+	dwCurrentTime = dwFrameCount = 0;	//初期値を0にすることを忘れないように（FPSを取得したときゴミが混ざること防ぐため)
 	// Windowsゲーム用メインループ
 	MSG msg = {}; 
 	while (WM_QUIT != msg.message)
@@ -87,7 +80,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		
 			if ((dwCurrentTime - dwFPSLastTime) >= 500)	// 0.5秒ごとに実行
 			{
-
 				dwFPSLastTime = dwCurrentTime;
 				dwFrameCount = 0;
 			}
@@ -352,12 +344,14 @@ bool Init(HINSTANCE hInst)
 	{
 		return false;	// ゲームの初期化に失敗した
 	}
+	
+	//	入力処理の初期化
 	if (!Input::Init(hInst,g_hWnd))
 	{
 		return false;
 	}
 
-	//	メインループ初期化処理
+	//	ゲーム初期化処理
 	SceneManager::Init();
 
 	return true;
@@ -366,9 +360,10 @@ bool Init(HINSTANCE hInst)
 //　終了処理関数
 void Uninit()
 {
-	//	メインループ終了処理
+	//	ゲーム終了処理
 	SceneManager::Uninit();
 
+	//	入力処理の終了処理
 	Input::Uninit();
 
 	// ゲームの終了処理(Direct3Dの終了処理)
@@ -377,10 +372,11 @@ void Uninit()
 
 // 更新処理関数
 void Update()
-{
+{	
+	//	入力処理の更新
 	Input::Update();
 
-	//	メインループ更新処理
+	//	ゲーム更新処理
 	SceneManager::Update();
 }
 
@@ -395,7 +391,7 @@ void Draw()
 	// 描画バッチ命令の開始
 	pD3DDevice->BeginScene();
 
-	//	メインループ描画処理
+	//	ゲーム描画処理
 	SceneManager::Draw();
 
 	// 描画バッチ命令の終了

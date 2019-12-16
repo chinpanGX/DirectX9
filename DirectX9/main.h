@@ -10,6 +10,15 @@
 #include <d3dx9.h>
 #include <d3d9.h>
 
+//	ライブラリのリンク
+#if 1	// [ここを"0"にした場合、"構成プロパティ" -> "リンカ" -> "入力" -> "追加の依存ファイル"に対象ライブラリを設定する]
+#pragma comment (lib, "d3d9.lib")
+#pragma comment (lib, "d3dx9.lib")
+#pragma comment (lib, "dxguid.lib")
+#pragma comment (lib, "dinput8.lib")
+#pragma comment (lib, "winmm.lib")
+#endif
+
 //	マクロ定義
 #define SCREEN_WIDTH  (1920)												// スクリーン(クライアント領域)の幅
 #define SCREEN_HEIGHT (1080)												// スクリーン(クライアント領域)の高さ
@@ -33,8 +42,8 @@ struct VERTEX_2D
 struct VERTEX_3D
 {
 	D3DXVECTOR3 pos;	// 頂点座標
-	D3DXVECTOR3 nor;		// 法線ベクトル
-	D3DCOLOR	col;		// 頂点カラー
+	D3DXVECTOR3 nor;	// 法線ベクトル
+	D3DCOLOR	col;	// 頂点カラー
 	D3DXVECTOR2 tex;	// テクスチャ座標
 };
 
