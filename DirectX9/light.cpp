@@ -14,6 +14,9 @@
 // グローバル変数
 D3DLIGHT9				g_aLight[NUM_LIGHT];		// ライト情報
 
+LPDIRECT3DDEVICE9	Light::pDevice;
+D3DXVECTOR3			Light::vecDir;
+
 // 初期化処理
 void Light::Init()
 {

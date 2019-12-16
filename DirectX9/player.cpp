@@ -124,7 +124,7 @@ void Player::Update()
 	}
 
 	//	’e‚ğ”­Ë
-    if (KeyBoard::IsTrigger(DIK_SPACE))
+    if (Mouse::LeftTrigger())
 	{
 		///	<summary>
 		///	“ü—Í‚ª‚³‚ê‚Ä‚¢‚È‚¢ê‡AŒü‚¢‚Ä‚¢‚é•ûŒü‚©‚ç”­Ë•ûŒü‚ğì¬

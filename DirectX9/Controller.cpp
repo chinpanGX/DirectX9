@@ -301,7 +301,7 @@ BOOL GamePad::IsTrigger(int padNo, DWORD button)
 }
 
 //	マウスの初期化
-HRESULT Mouse::Init(HINSTANCE hInst, HWND hWnd)
+HRESULT Mouse::Init(HINSTANCE hInst, HWND hWnd, BOOL bShow)
 {
 	HRESULT result;
 	// デバイス作成
@@ -342,6 +342,9 @@ HRESULT Mouse::Init(HINSTANCE hInst, HWND hWnd)
 		MessageBox(hWnd, "Mouse property error", "Warning", MB_OK | MB_ICONWARNING);
 		return result;
 	}
+
+	//	マウスカーソルの設定
+	ShowCursor(bShow);
 
 	// アクセス権を得る
 	m_pMouse->Acquire();
@@ -434,4 +437,5 @@ long Mouse::GetMouseZ()
 {
 	return m_mouseState.lZ;
 }
+
 

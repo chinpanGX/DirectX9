@@ -24,7 +24,6 @@ void SceneGame::Uninit()
 	m_Field.Uninit();
 	m_Player.Uninit();
 	m_Shadow.Uninit();
-	Light::Uninit();
 	DebugProc::Uninit();
 }
 

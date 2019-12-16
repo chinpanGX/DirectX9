@@ -97,7 +97,7 @@ private:
 	static DIMOUSESTATE2		m_mouseState;	// マウスのダイレクトな状態
 	static DIMOUSESTATE2		m_mouseTrigger;	// 押された瞬間だけON
 public:
-	static HRESULT	Init(HINSTANCE hInst, HWND hWnd);	//	初期化
+	static HRESULT	Init(HINSTANCE hInst, HWND hWnd, BOOL bShow);	//	初期化
 	static void		Uninit();							//	終了処理
 	static HRESULT	Update();							//	更新処理
 	static BOOL		LeftPress();						//  左クリックした状態
