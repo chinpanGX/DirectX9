@@ -162,6 +162,11 @@ void Shadow::SetScale(int nIdxShadow, D3DXVECTOR3 scl)
 	g_aShadow[nIdxShadow].m_scl = scl;
 }
 
+Shadow * Shadow::GetShadow()
+{
+	return &(g_aShadow[0]);;
+}
+
 // í∏ì_èÓïÒÇÃçÏê¨
 HRESULT Shadow::MakeVertexShadow(LPDIRECT3DDEVICE9 pDevice)
 {

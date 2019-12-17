@@ -13,8 +13,7 @@
 #define	BULLET_SIZE_Y		(20.0f)							// ビルボードの高さ
 #define	VALUE_MOVE_BULLET	(5.0f)							// 移動速度
 #define BULLET_NUM_VERTEX	4
-#define BULLET_NUM_POLYGON	2
-#define MAX_BULLET			100
+#define BULLET_NUM_POLYGON	2 
 
 //	グローバル変数
 Bullet g_Bullet[MAX_BULLET];
@@ -39,6 +38,22 @@ HRESULT Bullet::Init()
 		g_Bullet[nCntBullet].m_scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
 		g_Bullet[nCntBullet].m_move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		g_Bullet[nCntBullet].m_bUse = false;
+
+		//スフィア  
+		g_Bullet[nCntBullet].col_circle.cx = 0.0f;
+		g_Bullet[nCntBullet].col_circle.cy = 0.0f;
+		g_Bullet[nCntBullet].col_circle.cz = 0.0f;
+		g_Bullet[nCntBullet].col_circle.r = 10.0f; 
+
+		//	AABB    
+		g_Bullet[nCntBullet].col_aabb.cx = 0.0f;
+		g_Bullet[nCntBullet].col_aabb.cy = 0.0f;
+		g_Bullet[nCntBullet].col_aabb.cz = 0.0f;
+
+		g_Bullet[nCntBullet].col_aabb.sx = 10.0f;
+		g_Bullet[nCntBullet].col_aabb.sy = 10.0f;
+		g_Bullet[nCntBullet].col_aabb.sz = 10.0f;
+
 	}
 
 	return S_OK;
@@ -71,6 +86,16 @@ void Bullet::Update()
 
 			//座標の更新処理
 			g_Bullet[nCntBullet].m_pos += g_Bullet[nCntBullet].m_move * VALUE_MOVE_BULLET;
+
+			//当たり判定用座標更新
+			g_Bullet[nCntBullet].col_circle.cx = g_Bullet[nCntBullet].m_pos.x;
+			g_Bullet[nCntBullet].col_circle.cy = g_Bullet[nCntBullet].m_pos.y;
+			g_Bullet[nCntBullet].col_circle.cz = g_Bullet[nCntBullet].m_pos.z; 
+
+			//	AABB
+			g_Bullet[nCntBullet].col_aabb.cx = g_Bullet[nCntBullet].m_pos.x;
+			g_Bullet[nCntBullet].col_aabb.cy = g_Bullet[nCntBullet].m_pos.y;
+			g_Bullet[nCntBullet].col_aabb.cz = g_Bullet[nCntBullet].m_pos.z;
 
 			//影の位置を弾に合わせる
 			D3DXVECTOR3 pos = g_Bullet[nCntBullet].m_pos;
@@ -255,4 +280,24 @@ void Bullet::SetVertexBullet(float fSizeX, float fSizeY)
 		// 頂点データをアンロックする
 		m_pVtxBuffBullet->Unlock();
 	}
+}
+
+bool Bullet::IsEnable(int index)
+{
+	return g_Bullet[index].m_bUse;
+}
+
+CIRCLE * Bullet::GetCollision(int index)
+{
+	return &g_Bullet[index].col_circle;
+}
+
+AABB * Bullet::GetCollisionBox(int index)
+{
+	return &g_Bullet[index].col_aabb;
+}
+
+Bullet * Bullet::GetBullet(void)
+{
+	return &(g_Bullet[0]);
 }

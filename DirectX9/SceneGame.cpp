@@ -6,6 +6,8 @@
 ===================================================*/
 
 #include "SceneGame.h"
+#include "enemy.h";
+#include "collision.h"
 
 void SceneGame::Init()
 {
@@ -16,10 +18,12 @@ void SceneGame::Init()
 	m_Player.Init(D3DXVECTOR3 (0.0f,0.0f,0.0f), D3DXVECTOR3 (0.0f,0.0f,0.0f));
 	m_Field.Init();
 	m_Bullet.Init();
+	Enemy_Initialize();
 }
 
 void SceneGame::Uninit()
 {
+	Enemy_Finalize();
 	m_Bullet.Uninit();
 	m_Field.Uninit();
 	m_Player.Uninit();
@@ -33,6 +37,8 @@ void SceneGame::Update()
 	m_Camera.Update();
 	m_Shadow.Update();	//	‹ó
 	m_Bullet.Update();
+	Enemy_Update();
+	Collision_Update();
 }
 
 void SceneGame::Draw()
@@ -43,4 +49,5 @@ void SceneGame::Draw()
 	m_Shadow.Draw();
 	m_Player.Draw();
 	m_Bullet.Draw();
+	Enemy_Draw();
 }

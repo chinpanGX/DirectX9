@@ -31,6 +31,7 @@ public:
 	void	Release(int nIdxShadow);
 	void	SetPosition(int nIdxShadow,D3DXVECTOR3 pos);
 	void	SetScale(int nIdxShadow, D3DXVECTOR3 scl);
+	Shadow* GetShadow();
 
 private:
 	HRESULT MakeVertexShadow(LPDIRECT3DDEVICE9 pDevice);
