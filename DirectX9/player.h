@@ -27,6 +27,7 @@ private:
 	int							m_dir;				//	向いている方向
 	D3DXVECTOR3					m_move;				//	移動量
 	int							m_IdxShadow;		//	影をつくるインデックスの配列番号
+	bool						m_bEnableGravity;
 
 	Bullet	m_bullet;
 	Shadow	m_shadow;

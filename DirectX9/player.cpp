@@ -16,6 +16,9 @@
 #define	RATE_MOVE_MODEL		(0.2f)					// 移動慣性係数
 #define	VALUE_ROTATE_MODEL	(D3DX_PI * 0.05f)		// 回転速度
 #define	RATE_ROTATE_MODEL	(0.2f)					// 回転慣性係数
+#define	VALUE_GRAVITY		(0.45f)		// 重力
+#define	RATE_REGIST			(0.075f)	// 抵抗係数
+#define	RATE_REFRECT		(-0.90f)	// 反射係数
 
 //	スタティック変数
 LPDIRECT3DTEXTURE9	Player::m_pTextureModel = NULL;		// テクスチャへのポインタ
@@ -34,6 +37,7 @@ HRESULT Player::Init(D3DXVECTOR3 pos, D3DXVECTOR3 rot )
 	m_rotDest = rot;
 	m_dir = 3;
 	m_move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	m_bEnableGravity = true;
 
 	//Xファイルの読み込み
 	if (FAILED(D3DXLoadMeshFromX(MODEL_CAR,D3DXMESH_SYSTEMMEM,m_pDevice,NULL,&m_pBuffMatModel,NULL,&m_nNumMatModel,&m_pMeshModel)))
@@ -123,6 +127,26 @@ void Player::Update()
 		m_rot.y += D3DX_PI * 2.0f;
 	}
 
+	// ジャンプ
+	if (KeyBoard::IsTrigger(DIK_SPACE))
+	{
+		if (m_bEnableGravity == true)	//	重力フラグが有効な場合
+		{
+			m_move.y = 9.0f;	//VALUE_JUMPの値を代入
+		}
+	}
+
+	if (m_bEnableGravity == true)	//	重力フラグが有効な場合
+	{
+		m_pos.y += m_move.y;	//	m_moveBillboard.yの値を加算代入
+		if (m_pos.y < 0.0f)				//	9.0fよりうえに上がったら
+		{
+			m_pos.y = 0.0f;
+			m_move.y *= RATE_REFRECT;	//	反射係数を乗算代入
+		}
+		m_move.y -= VALUE_GRAVITY;		//	重力の値を除算
+	}
+
 	//	弾を発射
     if (Mouse::LeftTrigger())
 	{
@@ -147,7 +171,7 @@ void Player::Update()
 				break;
 			}
 		}
-		m_bullet.Create(m_pos.x, 6.5f, m_pos.z, D3DXVECTOR3(dir));
+		m_bullet.Create(m_pos.x, m_pos.y + 6.5f, m_pos.z, D3DXVECTOR3(dir));
 		dir = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	}
 
