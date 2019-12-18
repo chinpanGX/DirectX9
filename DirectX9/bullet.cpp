@@ -37,23 +37,23 @@ HRESULT Bullet::Init()
 		g_Bullet[nCntBullet].m_pos = D3DXVECTOR3(0.0f, 18.0f, 0.0f);
 		g_Bullet[nCntBullet].m_scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
 		g_Bullet[nCntBullet].m_move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		g_Bullet[nCntBullet].m_bUse = false;
 
 		//スフィア  
+		/*
 		g_Bullet[nCntBullet].col_circle.cx = 0.0f;
 		g_Bullet[nCntBullet].col_circle.cy = 0.0f;
 		g_Bullet[nCntBullet].col_circle.cz = 0.0f;
 		g_Bullet[nCntBullet].col_circle.r = 10.0f; 
-
+		*/
 		//	AABB    
 		g_Bullet[nCntBullet].col_aabb.cx = 0.0f;
-		g_Bullet[nCntBullet].col_aabb.cy = 0.0f;
+	    g_Bullet[nCntBullet].col_aabb.cy = 0.0f;
 		g_Bullet[nCntBullet].col_aabb.cz = 0.0f;
-
 		g_Bullet[nCntBullet].col_aabb.sx = 10.0f;
 		g_Bullet[nCntBullet].col_aabb.sy = 10.0f;
 		g_Bullet[nCntBullet].col_aabb.sz = 10.0f;
 
+		g_Bullet[nCntBullet].m_bUse = false;
 	}
 
 	return S_OK;
@@ -87,11 +87,12 @@ void Bullet::Update()
 			//座標の更新処理
 			g_Bullet[nCntBullet].m_pos += g_Bullet[nCntBullet].m_move * VALUE_MOVE_BULLET;
 
+			/*
 			//当たり判定用座標更新
 			g_Bullet[nCntBullet].col_circle.cx = g_Bullet[nCntBullet].m_pos.x;
 			g_Bullet[nCntBullet].col_circle.cy = g_Bullet[nCntBullet].m_pos.y;
 			g_Bullet[nCntBullet].col_circle.cz = g_Bullet[nCntBullet].m_pos.z; 
-
+			*/
 			//	AABB
 			g_Bullet[nCntBullet].col_aabb.cx = g_Bullet[nCntBullet].m_pos.x;
 			g_Bullet[nCntBullet].col_aabb.cy = g_Bullet[nCntBullet].m_pos.y;

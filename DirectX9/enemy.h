@@ -19,30 +19,33 @@
 //*****************************************************************************
 // 構造体定義
 //*****************************************************************************
-struct ENEMY
+class Enemy
 {
-	D3DXMATRIX			mtxWorldModel;	// ワールドマトリックス
-	D3DXVECTOR3			posModel;			// 現在の位置
-	D3DXVECTOR3			rotModel;			// 現在の向き
-	D3DXVECTOR3			rotDestModel;		// 目的の向き
-	D3DXVECTOR3			moveModel;		// 移動量
-	int					idxShadow;
+private:
+	static LPDIRECT3DTEXTURE9	m_pTextureModel;	// テクスチャへのポインタ
+	static LPD3DXMESH			m_pMeshModel;		// メッシュ情報へのポインタ
+	static LPD3DXBUFFER			m_pBuffMatModel;	// マテリアル情報へのポインタ
+	static DWORD				m_nNumMatModel;		// マテリアル情報の総数
 
-	CIRCLE				col_circle;		// 当たり判定用サークル
-	AABB				col_aabb;
+	LPDIRECT3DDEVICE9	m_pDevice;
+	D3DXMATRIX			m_mtxWorld;	// ワールドマトリックス
+	D3DXVECTOR3			m_pos;			// 現在の位置
+	D3DXVECTOR3			m_rot;			// 現在の向き
+	D3DXVECTOR3			m_rotDest;		// 目的の向き
+	D3DXVECTOR3			m_move;		// 移動量
+	int					m_idxShadow;
+	bool				m_bUse;
 
-	bool				bUse;
+	CIRCLE				m_circle;		// 当たり判定用サークル
+	AABB				m_aabb;
+
+public:
+	HRESULT Init();
+	void Uninit();
+	void Update();
+	void Draw();
+	bool IsEnable(int index);
+	CIRCLE* GetCircleCollision(int index);
+	AABB * GetAABBCollision(int index);
+	Enemy* GetEnemy();
 };
-
-//*****************************************************************************
-// プロトタイプ宣言
-//*****************************************************************************
-HRESULT Enemy_Initialize(void);
-void Enemy_Finalize(void);
-void Enemy_Update(void);
-void Enemy_Draw(void);
-bool Enemy_IsEnable(int index);
-
-CIRCLE* Enemy_GetCollision(int index);
-AABB * GetCollision(int index);
-ENEMY* GetEnemy(void);

@@ -27,6 +27,7 @@ private:
 	Field			m_Field;
 	Bullet			m_Bullet;
 	Shadow			m_Shadow;
+	Enemy			m_Enemy;
 
 public:
 	void Init();		//	‰Šú‰»ˆ—

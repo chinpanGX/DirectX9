@@ -6,8 +6,8 @@
 #include <d3dx9.h>
 
 
-static bool HitCircle(const CIRCLE* pCircle_a, const CIRCLE* pCircle_b);
-static bool HitAABB(const AABB* p_BB_a, const AABB* p_BB_b);
+bool HitCircle(const CIRCLE* pCircle_a, const CIRCLE* pCircle_b);
+bool HitAABB(const AABB* p_BB_a, const AABB* p_BB_b);
 void Collision_Bullet_vs_Enemy(void);
 
 //	バウンディングスフィアの当たり判定 
@@ -107,10 +107,11 @@ void Collision_Bullet_vs_Enemy(void)
 	}
 #endif
 
-	Bullet* pBullet = new Bullet;
+	Bullet* pBullet;
 	pBullet->GetBullet();
-	ENEMY* pEnemy = GetEnemy();
-	Shadow* pShadow = new Shadow;
+	Enemy* pEnemy;
+	pEnemy->GetEnemy();
+	Shadow* pShadow;
 	pShadow->GetShadow();
 
 	for (int i = 0; i < MAX_BULLET; i++)
@@ -123,18 +124,18 @@ void Collision_Bullet_vs_Enemy(void)
 		for (int j = 0; j < MAX_ENEMY; j++)
 		{
 			// エネミーは有効か？
-			if (Enemy_IsEnable(j) == false) {
+			if (pEnemy->IsEnable(j) == false) {
 				continue;
 			}
 
 			// 弾のコリジョンとエネミーのコリジョン
-			if (HitAABB(pBullet->GetCollisionBox(i), GetCollision(j)))
+			if (HitAABB(pBullet->GetCollisionBox(i), pEnemy->GetAABBCollision(j)))
 			{
 				// 当たってる
 
 				// 敵の消滅処理
-				pShadow->Release(pEnemy[j].idxShadow);
-				pEnemy[j].bUse = false;
+				pShadow->Release(pEnemy[j]->m_idxShadow);
+				pEnemy[j]->m_bUse = false;
 
 				// 弾の消滅処理
 				pShadow->Release(pBullet[i].m_nIdxShadowBullet);
@@ -155,23 +156,23 @@ bool HitAABB(const AABB* p_BB_a, const AABB* p_BB_b)
 
 	//	Aのbox最小点
 	minA.x = p_BB_a->cx - p_BB_a->sx;
-	minA.x = p_BB_a->cy - p_BB_a->sy;
-	minA.x = p_BB_a->cz - p_BB_a->sz;
+	minA.y = p_BB_a->cy - p_BB_a->sy;
+	minA.z = p_BB_a->cz - p_BB_a->sz;
 
 	//	Aのbox最大点
 	maxA.x = p_BB_a->cx + p_BB_a->sx;
-	maxA.x = p_BB_a->cy + p_BB_a->sy;
-	maxA.x = p_BB_a->cz + p_BB_a->sz;
+	maxA.y = p_BB_a->cy + p_BB_a->sy;
+	maxA.z = p_BB_a->cz + p_BB_a->sz;
 
 	//	Bのbox最小点
 	minB.x = p_BB_b->cx - p_BB_b->sx;
-	minB.x = p_BB_b->cy - p_BB_b->sy;
-	minB.x = p_BB_b->cz - p_BB_b->sz;
+	minB.y = p_BB_b->cy - p_BB_b->sy;
+	minB.z = p_BB_b->cz - p_BB_b->sz;
 	   			  
 	//	Bのbox最大点 
 	maxB.x = p_BB_b->cx + p_BB_b->sx;
-	maxB.x = p_BB_b->cy + p_BB_b->sy;
-	maxB.x = p_BB_b->cz + p_BB_b->sz;
+	maxB.y= p_BB_b->cy + p_BB_b->sy;
+	maxB.z = p_BB_b->cz + p_BB_b->sz;
 
 	//	X軸の比較
 	if (maxA.x > minB.x && minA.x < maxB.x)
